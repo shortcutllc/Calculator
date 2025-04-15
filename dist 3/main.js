@@ -12,6 +12,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set current year in footer
     document.getElementById('current-year').textContent = new Date().getFullYear();
     
+    // Set default hourly rate for massage and hair/nails services
+    const serviceTypeSelect = document.getElementById('serviceType');
+    if (serviceTypeSelect) {
+        const serviceType = serviceTypeSelect.value;
+        const hourlyRateInput = document.getElementById('hourlyRate');
+        if ((serviceType === 'massage/spa' || serviceType === 'hair/nails') && hourlyRateInput) {
+            hourlyRateInput.value = '135';
+        }
+    }
+    
     // Get welcome screen elements
     const welcomeScreen = document.getElementById('welcome-screen');
     const createSingleEventBtn = document.getElementById('create-single-event-btn');
