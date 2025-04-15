@@ -1170,6 +1170,110 @@
     .secondary-button:hover {
         background-color: #e0e0e0;
     }
+
+    /* Share Modal Styles */
+    .share-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .share-modal.active {
+      display: flex;
+    }
+
+    .share-modal-content {
+      background-color: var(--white);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      width: 90%;
+      max-width: 600px;
+      position: relative;
+      box-shadow: var(--shadow);
+    }
+
+    .share-modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--secondary-color);
+      background: none;
+      border: none;
+      padding: 0;
+      transition: var(--transition);
+    }
+
+    .share-modal-close:hover {
+      color: var(--primary-color);
+    }
+
+    .share-modal h3 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: var(--secondary-color);
+    }
+
+    .share-input-group {
+      margin-bottom: 20px;
+    }
+
+    .share-input-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--secondary-color);
+      font-weight: 600;
+    }
+
+    .input-with-copy {
+      display: flex;
+      gap: 10px;
+    }
+
+    .share-input-group input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid var(--medium-gray);
+      border-radius: var(--border-radius);
+      font-family: 'Outfit', sans-serif;
+      color: var(--secondary-color);
+    }
+
+    .copy-btn {
+      background-color: var(--secondary-color);
+      color: var(--white);
+      border: none;
+      padding: 8px 15px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .copy-btn:hover {
+      background-color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .share-note {
+      margin-top: 20px;
+      color: var(--secondary-color);
+      font-size: 14px;
+      padding: 10px;
+      background-color: var(--light-gray);
+      border-radius: var(--border-radius);
+      border-left: 4px solid var(--primary-color);
+    }
   </style>
 </head>
 <body>
@@ -1666,1411 +1770,65 @@
     </div>
   </div>
 
-  <script>
+  <!-- Share Proposal Modal -->
+  <div id="share-modal" class="share-modal">
+    <div class="share-modal-content">
+      <button class="share-modal-close" id="share-modal-close">&times;</button>
+      <h3>Share Proposal</h3>
+      
+      <div class="share-input-group">
+        <label for="proposal-link">Proposal Link</label>
+        <div class="input-with-copy">
+          <input type="text" id="proposal-link" readonly>
+          <button class="copy-btn" id="copy-link-btn">Copy Link</button>
+        </div>
+      </div>
+      
+      <div class="share-input-group">
+        <label for="access-code">Access Code</label>
+        <div class="input-with-copy">
+          <input type="text" id="access-code" readonly>
+          <button class="copy-btn" id="copy-code-btn">Copy Code</button>
+        </div>
+      </div>
+      
+      <div class="share-note">
+        <strong>Note:</strong> Please share both the proposal link and access code with your client.
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
     // Password protection
     const correctPassword = 'LouieJack1!';
     const passwordScreen = document.getElementById('password-screen');
-    const mainContent = document.querySelector('.container');
+    const container = document.querySelector('.container');
     const passwordInput = document.getElementById('password-input');
     const passwordError = document.getElementById('password-error');
-    
-    // Check if already authenticated
-    if (sessionStorage.getItem('authenticated')) {
-      passwordScreen.style.display = 'none';
-      mainContent.style.display = 'block';
-    }
-    
+
     function checkPassword() {
       if (passwordInput.value === correctPassword) {
-        passwordScreen.style.display = 'none';
-        mainContent.style.display = 'block';
         sessionStorage.setItem('authenticated', 'true');
-        passwordError.style.display = 'none';
+        passwordScreen.style.display = 'none';
+        container.style.display = 'block';
       } else {
         passwordError.style.display = 'block';
         passwordInput.value = '';
       }
     }
-    
-    // Allow Enter key to submit
-    passwordInput.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        checkPassword();
-      }
-    });
-    
-    // DOM Elements
-    const welcomeScreen = document.getElementById('welcome-screen');
-    const tabs = document.querySelector('.tabs');
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-    const backButtons = document.querySelectorAll('.back-btn');
-    
-    // Single Event Calculator Elements
-    const calculatorForm = document.getElementById('calculator-form');
-    const serviceTypeSelect = document.getElementById('serviceType');
-    const appTimeInput = document.getElementById('appTime');
-    const proHourlyInput = document.getElementById('proHourly');
-    const totalHoursInput = document.getElementById('totalHours');
-    const numProsInput = document.getElementById('numPros');
-    const totalAppointmentsInput = document.getElementById('totalAppointments');
-    const hourlyRateInput = document.getElementById('hourlyRate');
-    const earlyArrivalInput = document.getElementById('earlyArrival');
-    const retouchingCostInput = document.getElementById('retouchingCost');
-    const discountPercentInput = document.getElementById('discountPercent');
-    const eventsPerYearInput = document.getElementById('eventsPerYear');
-    const calculateBtn = document.getElementById('calculate-btn');
-    const saveDraftBtn = document.getElementById('save-draft-btn');
-    const resetBtn = document.getElementById('reset-btn');
-    
-    // Results Elements
-    const resultsContainer = document.getElementById('results-container');
-    const totalHoursResult = document.getElementById('totalHoursResult');
-    const apptsPerProPerHour = document.getElementById('apptsPerProPerHour');
-    const apptsPerHour = document.getElementById('apptsPerHour');
-    const totalAppts = document.getElementById('totalAppts');
-    const totalCost = document.getElementById('totalCost');
-    const totalProRev = document.getElementById('totalProRev');
-    const shortcutNet = document.getElementById('shortcutNet');
-    const shortcutMargin = document.getElementById('shortcutMargin');
-    const totalAnnual = document.getElementById('totalAnnual');
-    
-    // Multi-Day Elements
-    const addDayBtn = document.getElementById('add-day-btn');
-    const calculateMultiBtn = document.getElementById('calculate-multi-btn');
-    const saveMultiDraftBtn = document.getElementById('save-multi-draft-btn');
-    const resetMultiBtn = document.getElementById('reset-multi-btn');
-    const daysContainer = document.getElementById('days-container');
-    
-    // Multi-Day Results Elements
-    const multiTotalAppts = document.getElementById('multi-totalAppts');
-    const multiTotalCost = document.getElementById('multi-totalCost');
-    const multiTotalProRev = document.getElementById('multi-totalProRev');
-    const multiShortcutNet = document.getElementById('multi-shortcutNet');
-    const multiShortcutMargin = document.getElementById('multi-shortcutMargin');
-    const multiTotalAnnual = document.getElementById('multi-totalAnnual');
-    const resultsTabs = document.querySelectorAll('.results-tab-btn');
-    const resultsTabContents = document.querySelectorAll('.results-tab-content');
-    
-    // History Elements
-    const calculationTitle = document.getElementById('calculation-title');
-    const saveCalculationBtn = document.getElementById('save-calculation-btn');
-    const clearHistoryBtn = document.getElementById('clear-history-btn');
-    const historyContainer = document.getElementById('history-container');
-    
-    // Proposal Elements
-    const generateProposalBtn = document.getElementById('generate-proposal-btn');
-    const generateMultiProposalBtn = document.getElementById('generate-multi-proposal-btn');
-    const proposalModal = document.getElementById('proposal-modal');
-    const proposalForm = document.getElementById('proposal-form');
-    const proposalClientName = document.getElementById('proposalClientName');
-    const proposalContactName = document.getElementById('proposalContactName');
-    const proposalEmail = document.getElementById('proposalEmail');
-    const proposalPhone = document.getElementById('proposalPhone');
-    const proposalEventDate = document.getElementById('proposalEventDate');
-    const proposalEventLocation = document.getElementById('proposalEventLocation');
-    const proposalNotes = document.getElementById('proposalNotes');
-    const clientLogo = document.getElementById('clientLogo');
-    const clientLogoPreview = document.getElementById('clientLogoPreview');
-    const logoPlaceholder = document.getElementById('logo-placeholder');
-    const previewProposalBtn = document.getElementById('preview-proposal-btn');
-    const cancelProposalBtn = document.getElementById('cancel-proposal-btn');
-    const closeModal = document.querySelector('.close-modal');
-    
-    // Proposal Preview Elements
-    const proposalPreviewModal = document.getElementById('proposal-preview-modal');
-    const proposalPreviewContainer = document.getElementById('proposal-preview-container');
-    const editProposalBtn = document.getElementById('edit-proposal-btn');
-    const downloadPdfBtn = document.getElementById('download-pdf-btn');
-    const emailProposalBtn = document.getElementById('email-proposal-btn');
-    const closePreviewBtn = document.getElementById('close-preview-btn');
-    const closePreviewModal = document.querySelector('.close-preview-modal');
-    
-    // Preset Elements
-    const presetTabButtons = document.querySelectorAll('.preset-tab-btn');
-    const presetTabContents = document.querySelectorAll('.preset-tab-content');
-    const presetButtons = document.querySelectorAll('.preset-btn');
-    
-    // Global Variables
-    let currentTab = 'single-event';
-    let currentCalculation = null;
-    let calculationHistory = [];
-    let dayCounter = 1;
-    
-    // Event Listeners
-    document.getElementById('create-single-event-btn').addEventListener('click', () => {
-      showTab('single-event');
-    });
-    
-    document.getElementById('create-multi-day-event-btn').addEventListener('click', () => {
-      showTab('multi-day');
-      // Initialize Day 1 form fields
-      updateDayServiceTypeFields(1);
-      updateDayTotalAppointments(1);
-    });
-    
-    document.getElementById('view-history-btn').addEventListener('click', () => {
-      showTab('history');
-    });
-    
-    tabButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const tab = button.getAttribute('data-tab');
-        showTab(tab);
-      });
-    });
-    
-    backButtons.forEach(button => {
-      button.addEventListener('click', showWelcomeScreen);
-    });
-    
-    // Service Type Change Handler
-    serviceTypeSelect.addEventListener('change', () => {
-      updateServiceTypeFields();
-      updateTotalAppointments();
-    });
-    
-    // Input Change Handlers
-    totalHoursInput.addEventListener('input', updateTotalAppointments);
-    appTimeInput.addEventListener('input', updateTotalAppointments);
-    numProsInput.addEventListener('input', updateTotalAppointments);
-    
-    // Form Submit Handler
-    calculatorForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      calculateSingleEvent();
-    });
-    
-    // Multi-Day Event Handlers
-    addDayBtn.addEventListener('click', addNewDay);
-    calculateMultiBtn.addEventListener('click', calculateMultiDayEvent);
-    resetMultiBtn.addEventListener('click', resetMultiDayEvent);
-    
-    // Results Tab Handlers
-    resultsTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        const tabName = tab.getAttribute('data-results-tab');
-        showResultsTab(tabName);
-      });
-    });
-    
-    // Proposal Handlers
-    generateProposalBtn.addEventListener('click', () => {
-      showProposalModal('single');
-    });
-    
-    generateMultiProposalBtn.addEventListener('click', () => {
-      showProposalModal('multi');
-    });
-    
-    closeModal.addEventListener('click', () => {
-      proposalModal.style.display = 'none';
-    });
-    
-    cancelProposalBtn.addEventListener('click', () => {
-      proposalModal.style.display = 'none';
-    });
-    
-    previewProposalBtn.addEventListener('click', generateProposalPreview);
-    
-    closePreviewModal.addEventListener('click', () => {
-      proposalPreviewModal.style.display = 'none';
-    });
-    
-    closePreviewBtn.addEventListener('click', () => {
-      proposalPreviewModal.style.display = 'none';
-    });
-    
-    editProposalBtn.addEventListener('click', () => {
-      proposalPreviewModal.style.display = 'none';
-      proposalModal.style.display = 'block';
-    });
-    
-    // Client Logo Upload Handler
-    clientLogo.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          clientLogoPreview.src = e.target.result;
-          clientLogoPreview.style.display = 'block';
-          logoPlaceholder.style.display = 'none';
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-    
-    // Preset Tab Handlers
-    presetTabButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const tabName = button.getAttribute('data-preset-tab');
-        showPresetTab(tabName);
-      });
-    });
-    
-    // Preset Button Handlers
-    presetButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const preset = button.getAttribute('data-preset');
-        applyPreset(preset);
-      });
-    });
-    
-    // Functions
-    function showWelcomeScreen() {
-      welcomeScreen.style.display = 'block';
-      tabs.style.display = 'none';
-      tabContents.forEach(content => {
-        content.style.display = 'none';
-      });
-    }
-    
-    function showTab(tabName) {
-      welcomeScreen.style.display = 'none';
-      tabs.style.display = 'flex';
-      
-      tabButtons.forEach(button => {
-        if (button.getAttribute('data-tab') === tabName) {
-          button.classList.add('active');
-        } else {
-          button.classList.remove('active');
-        }
-      });
-      
-      tabContents.forEach(content => {
-        if (content.id === `${tabName}-tab`) {
-          content.style.display = 'block';
-        } else {
-          content.style.display = 'none';
-        }
-      });
-      
-      currentTab = tabName;
-      
-      if (tabName === 'multi-day') {
-        // Initialize Day 1 form fields if they exist
-        updateDayServiceTypeFields(1);
-        updateDayTotalAppointments(1);
-      }
-    }
-    
-    function updateServiceTypeFields() {
-      const serviceType = serviceTypeSelect.value;
-      
-      // Set default appointment duration based on service type
-      if (serviceType === 'massage/spa') {
-        appTimeInput.value = 20;
-        proHourlyInput.value = 50;
-      } else if (serviceType === 'hair/nails') {
-        appTimeInput.value = 30;
-        proHourlyInput.value = 50;
-      } else if (serviceType === 'headshot') {
-        appTimeInput.value = 12;
-        proHourlyInput.value = 400;
-      }
-      
-      // Show/hide headshot-specific fields
-      const headshotFields = document.querySelectorAll('.headshot-field');
-      const nonHeadshotFields = document.querySelectorAll('.non-headshot-field');
-      
-      if (serviceType === 'headshot') {
-        headshotFields.forEach(field => field.style.display = 'block');
-        nonHeadshotFields.forEach(field => field.style.display = 'none');
-      } else {
-        headshotFields.forEach(field => field.style.display = 'none');
-        nonHeadshotFields.forEach(field => field.style.display = 'block');
-      }
-    }
-    
-    function updateTotalAppointments() {
-      const totalHours = parseFloat(totalHoursInput.value);
-      const appTime = parseFloat(appTimeInput.value);
-      const numPros = parseInt(numProsInput.value);
-      
-      if (totalHours && appTime && numPros) {
-        const apptsPerHourPerPro = 60 / appTime;
-        const totalAppts = Math.floor(totalHours * apptsPerHourPerPro * numPros);
-        totalAppointmentsInput.value = totalAppts;
-      }
-    }
-    
-    function calculateSingleEvent() {
-      const serviceType = serviceTypeSelect.value;
-      const clientName = document.getElementById('clientName').value;
-      const totalHours = parseFloat(totalHoursInput.value);
-      const appTime = parseFloat(appTimeInput.value);
-      const numPros = parseInt(numProsInput.value);
-      const proHourly = parseFloat(proHourlyInput.value);
-      const discountPercent = parseFloat(discountPercentInput.value);
-      const eventsPerYear = parseInt(eventsPerYearInput.value);
-      
-      // Calculate appointments per hour
-      const apptsPerHourPerPro = 60 / appTime;
-      const totalApptsPerHour = apptsPerHourPerPro * numPros;
-      const totalApptsValue = Math.floor(totalHours * totalApptsPerHour);
-      
-      // Calculate costs
-      let totalCostValue = 0;
-      let totalProRevValue = 0;
-      
-      if (serviceType === 'headshot') {
-        const retouchingCost = parseFloat(retouchingCostInput.value);
-        totalProRevValue = totalHours * numPros * proHourly;
-        totalCostValue = totalProRevValue + (totalApptsValue * retouchingCost);
-      } else {
-        const hourlyRate = parseFloat(hourlyRateInput.value);
-        const earlyArrivalBase = parseFloat(earlyArrivalInput.value); // Base rate per pro
-        const totalEarlyArrival = earlyArrivalBase * numPros; // Total early arrival bonus
-        totalProRevValue = (totalHours * numPros * proHourly) + totalEarlyArrival;
-        totalCostValue = (totalHours * hourlyRate * numPros);
-      }
-      
-      // Apply discount
-      if (discountPercent > 0) {
-        totalCostValue = totalCostValue * (1 - (discountPercent / 100));
-      }
-      
-      // Calculate Shortcut profit
-      const shortcutNetValue = totalCostValue - totalProRevValue;
-      const shortcutMarginValue = (shortcutNetValue / totalCostValue) * 100;
-      const totalAnnualValue = totalCostValue * eventsPerYear;
-      
-      // Update results - Remove decimal points from non-monetary values
-      totalHoursResult.textContent = `${totalHours} hours`;
-      apptsPerProPerHour.textContent = `${Math.round(apptsPerHourPerPro)}`;
-      apptsPerHour.textContent = `${Math.round(totalApptsPerHour)}`;
-      totalAppts.textContent = `${totalApptsValue}`;
-      totalCost.textContent = `$${totalCostValue.toFixed(2)}`;
-      totalProRev.textContent = `$${totalProRevValue.toFixed(2)}`;
-      shortcutNet.textContent = `$${shortcutNetValue.toFixed(2)}`;
-      shortcutMargin.textContent = `${shortcutMarginValue.toFixed(2)}%`;
-      totalAnnual.textContent = `$${totalAnnualValue.toFixed(2)}`;
-      
-      // Store current calculation
-      currentCalculation = {
-        type: 'single',
-        clientName,
-        serviceType,
-        totalHours,
-        appTime,
-        numPros,
-        totalAppts: totalApptsValue,
-        totalCost: totalCostValue,
-        totalProRev: totalProRevValue,
-        shortcutNet: shortcutNetValue,
-        shortcutMargin: shortcutMarginValue,
-        totalAnnual: totalAnnualValue,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Show proposal button
-      document.querySelector('.proposal-actions').style.display = 'block';
-    }
-    
-    function addNewDay() {
-      dayCounter++;
-      
-      const dayConfig = document.createElement('div');
-      dayConfig.className = 'day-config';
-      dayConfig.setAttribute('data-day-id', dayCounter);
-      
-      dayConfig.innerHTML = `
-        <div class="day-header">
-          <h3>Day ${dayCounter}</h3>
-          <div class="day-actions">
-            <button class="calculate-day-btn btn btn-secondary" data-day-id="${dayCounter}">Calculate Day</button>
-            <button class="remove-day-btn btn btn-primary" data-day-id="${dayCounter}">Remove</button>
-          </div>
-        </div>
-        <div class="location-input">
-          <label for="location-${dayCounter}">Location:</label>
-          <input type="text" id="location-${dayCounter}" placeholder="Location ${dayCounter}" value="Location ${dayCounter}">
-        </div>
-        <div class="day-form">
-          <div class="form-group">
-            <label for="serviceType-${dayCounter}">Service Type:</label>
-            <select id="serviceType-${dayCounter}" name="serviceType-${dayCounter}" required>
-              <option value="massage/spa">Massage/Spa</option>
-              <option value="hair/nails">Hair/Nails</option>
-              <option value="headshot">Headshot</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="totalHours-${dayCounter}">Event Duration (hours):</label>
-            <input type="number" id="totalHours-${dayCounter}" name="totalHours-${dayCounter}" min="1" max="12" step="0.5" value="4" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="appTime-${dayCounter}">Appointment Duration (minutes):</label>
-            <input type="number" id="appTime-${dayCounter}" name="appTime-${dayCounter}" min="5" max="60" step="1" value="20" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="numPros-${dayCounter}">Number of Professionals:</label>
-            <input type="number" id="numPros-${dayCounter}" name="numPros-${dayCounter}" min="1" max="20" value="3" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="totalAppointments-${dayCounter}">Total Appointments:</label>
-            <input type="number" id="totalAppointments-${dayCounter}" name="totalAppointments-${dayCounter}" min="1" max="1000" value="36" readonly>
-          </div>
-          
-          <div class="form-group">
-            <label for="proHourly-${dayCounter}">Professional Hourly Rate ($):</label>
-            <input type="number" id="proHourly-${dayCounter}" name="proHourly-${dayCounter}" min="30" max="500" value="50" required>
-          </div>
-          
-          <div class="form-group headshot-field" style="display: none;">
-            <label for="retouchingCost-${dayCounter}">Retouching Cost per Headshot ($):</label>
-            <input type="number" id="retouchingCost-${dayCounter}" name="retouchingCost-${dayCounter}" min="0" max="200" value="40" required>
-          </div>
-          
-          <div class="form-group non-headshot-field">
-            <label for="hourlyRate-${dayCounter}">Customer Hourly Rate ($):</label>
-            <input type="number" id="hourlyRate-${dayCounter}" name="hourlyRate-${dayCounter}" min="100" max="500" value="120" required>
-          </div>
-          
-          <div class="form-group non-headshot-field">
-            <label for="earlyArrival-${dayCounter}">Early Arrival Bonus ($):</label>
-            <input type="number" id="earlyArrival-${dayCounter}" name="earlyArrival-${dayCounter}" min="0" max="500" value="25" readonly>
-          </div>
-          
-          <div class="form-group">
-            <label for="discountPercent-${dayCounter}">Discount (%):</label>
-            <input type="number" id="discountPercent-${dayCounter}" name="discountPercent-${dayCounter}" min="0" max="100" value="0" required>
-          </div>
-        </div>
-      `;
-      
-      daysContainer.appendChild(dayConfig);
-      
-      // Add event listener to remove button
-      const removeBtn = dayConfig.querySelector('.remove-day-btn');
-      removeBtn.addEventListener('click', () => {
-        removeDay(dayCounter);
-      });
-      
-      // Add event listener to calculate day button
-      const calculateDayBtn = dayConfig.querySelector('.calculate-day-btn');
-      calculateDayBtn.addEventListener('click', () => {
-        calculateSingleDay(dayCounter);
-      });
-      
-      // Add event listeners to update total appointments
-      const serviceTypeSelect = document.getElementById(`serviceType-${dayCounter}`);
-      const totalHoursInput = document.getElementById(`totalHours-${dayCounter}`);
-      const appTimeInput = document.getElementById(`appTime-${dayCounter}`);
-      const numProsInput = document.getElementById(`numPros-${dayCounter}`);
-      
-      serviceTypeSelect.addEventListener('change', () => {
-        updateDayServiceTypeFields(dayCounter);
-        updateDayTotalAppointments(dayCounter);
-      });
-      
-      totalHoursInput.addEventListener('input', () => {
-        updateDayTotalAppointments(dayCounter);
-      });
-      
-      appTimeInput.addEventListener('input', () => {
-        updateDayTotalAppointments(dayCounter);
-      });
-      
-      numProsInput.addEventListener('input', () => {
-        updateDayTotalAppointments(dayCounter);
-      });
-      
-      // Initialize service type fields
-      updateDayServiceTypeFields(dayCounter);
-      updateDayTotalAppointments(dayCounter);
-    }
-    
-    function removeDay(dayId) {
-      const dayConfig = document.querySelector(`.day-config[data-day-id="${dayId}"]`);
-      if (dayConfig) {
-        dayConfig.remove();
-      }
-      
-      // If no days left, add a new one
-      if (document.querySelectorAll('.day-config').length === 0) {
-        dayCounter = 0;
-        addNewDay();
-      }
-    }
-    
-    function updateDayServiceTypeFields(dayId) {
-      const serviceType = document.getElementById(`serviceType-${dayId}`).value;
-      
-      // Set default appointment duration based on service type
-      if (serviceType === 'massage/spa') {
-        document.getElementById(`appTime-${dayId}`).value = 20;
-        document.getElementById(`proHourly-${dayId}`).value = 50;
-      } else if (serviceType === 'hair/nails') {
-        document.getElementById(`appTime-${dayId}`).value = 30;
-        document.getElementById(`proHourly-${dayId}`).value = 50;
-      } else if (serviceType === 'headshot') {
-        document.getElementById(`appTime-${dayId}`).value = 12;
-        document.getElementById(`proHourly-${dayId}`).value = 400;
-      }
-      
-      // Show/hide headshot-specific fields
-      const dayConfig = document.querySelector(`.day-config[data-day-id="${dayId}"]`);
-      const headshotFields = dayConfig.querySelectorAll('.headshot-field');
-      const nonHeadshotFields = dayConfig.querySelectorAll('.non-headshot-field');
-      
-      if (serviceType === 'headshot') {
-        headshotFields.forEach(field => field.style.display = 'block');
-        nonHeadshotFields.forEach(field => field.style.display = 'none');
-      } else {
-        headshotFields.forEach(field => field.style.display = 'none');
-        nonHeadshotFields.forEach(field => field.style.display = 'block');
-      }
-    }
-    
-    function updateDayTotalAppointments(dayId) {
-      const totalHours = parseFloat(document.getElementById(`totalHours-${dayId}`).value);
-      const appTime = parseFloat(document.getElementById(`appTime-${dayId}`).value);
-      const numPros = parseInt(document.getElementById(`numPros-${dayId}`).value);
-      
-      if (totalHours && appTime && numPros) {
-        const apptsPerHourPerPro = 60 / appTime;
-        const totalAppts = Math.floor(totalHours * apptsPerHourPerPro * numPros);
-        document.getElementById(`totalAppointments-${dayId}`).value = totalAppts;
-      }
-    }
-    
-    // Function to calculate a single day in multi-day calculator
-    function calculateSingleDay(dayId) {
-      const serviceType = document.getElementById(`serviceType-${dayId}`).value;
-      const location = document.getElementById(`location-${dayId}`).value;
-      const totalHours = parseFloat(document.getElementById(`totalHours-${dayId}`).value);
-      const appTime = parseFloat(document.getElementById(`appTime-${dayId}`).value);
-      const numPros = parseInt(document.getElementById(`numPros-${dayId}`).value);
-      const proHourly = parseFloat(document.getElementById(`proHourly-${dayId}`).value);
-      const discountPercent = parseFloat(document.getElementById(`discountPercent-${dayId}`).value);
-      
-      // Calculate appointments per hour
-      const apptsPerHourPerPro = 60 / appTime;
-      const totalApptsPerHour = apptsPerHourPerPro * numPros;
-      const totalAppts = Math.floor(totalHours * totalApptsPerHour);
-      
-      // Calculate costs
-      let totalCostValue = 0;
-      let totalProRevValue = 0;
-      
-      if (serviceType === 'headshot') {
-        const retouchingCost = parseFloat(document.getElementById(`retouchingCost-${dayId}`).value);
-        totalProRevValue = totalHours * numPros * proHourly;
-        totalCostValue = totalProRevValue + (totalAppts * retouchingCost);
-      } else {
-        const hourlyRate = parseFloat(document.getElementById(`hourlyRate-${dayId}`).value);
-        const earlyArrivalBase = parseFloat(document.getElementById(`earlyArrival-${dayId}`).value); // Base rate per pro
-        const totalEarlyArrival = earlyArrivalBase * numPros; // Total early arrival bonus
-        totalProRevValue = (totalHours * numPros * proHourly) + totalEarlyArrival;
-        totalCostValue = (totalHours * hourlyRate * numPros);
-      }
-      
-      // Apply discount
-      if (discountPercent > 0) {
-        totalCostValue = totalCostValue * (1 - (discountPercent / 100));
-      }
-      
-      // Calculate Shortcut profit
-      const shortcutNetValue = totalCostValue - totalProRevValue;
-      const shortcutMarginValue = (shortcutNetValue / totalCostValue) * 100;
-      
-      // Create day data object
-      const dayData = {
-        dayId,
-        dayLabel: `Day ${dayId}`,
-        location,
-        serviceType,
-        totalHours,
-        appTime,
-        numPros,
-        apptsPerHourPerPro: Math.round(apptsPerHourPerPro),
-        totalApptsPerHour: Math.round(totalApptsPerHour),
-        totalAppointments: totalAppts,
-        totalCost: totalCostValue,
-        totalProRev: totalProRevValue,
-        shortcutNet: shortcutNetValue,
-        shortcutMargin: shortcutMarginValue
-      };
-      
-      // Update By Day results
-      const byDayResults = document.getElementById('by-day-results');
-      
-      // Check if this day already has a section
-      let daySection = byDayResults.querySelector(`.day-section[data-day-id="${dayId}"]`);
-      
-      if (!daySection) {
-        daySection = document.createElement('div');
-        daySection.className = 'day-section';
-        daySection.setAttribute('data-day-id', dayId);
-        byDayResults.appendChild(daySection);
-      }
-      
-      daySection.innerHTML = `
-        <h4>${dayData.dayLabel} - ${dayData.location}</h4>
-        <div class="result-card">
-          <h3>Client Details</h3>
-          <div class="result-item">
-            <span class="result-label">Total Hours:</span>
-            <span class="result-value">${dayData.totalHours} hours</span>
-          </div>
-          <div class="result-item">
-            <span class="result-label">Appointments Per Pro Per Hour:</span>
-            <span class="result-value">${dayData.apptsPerHourPerPro}</span>
-          </div>
-          <div class="result-item">
-            <span class="result-label">Total Appointments Per Hour:</span>
-            <span class="result-value">${dayData.totalApptsPerHour}</span>
-          </div>
-          <div class="result-item">
-            <span class="result-label">Total Appointments:</span>
-            <span class="result-value">${dayData.totalAppointments}</span>
-          </div>
-          <div class="result-item">
-            <span class="result-label">Cost to Customer:</span>
-            <span class="result-value">$${dayData.totalCost.toFixed(2)}</span>
-          </div>
-        </div>
-        <div class="result-card">
-          <h3>Shortcut Details</h3>
-          <div class="result-item">
-            <span class="result-label">Professional Revenue:</span>
-            <span class="result-value">$${dayData.totalProRev.toFixed(2)}</span>
-          </div>
-          <div class="result-item">
-            <span class="result-label">Shortcut Net:</span>
-            <span class="result-value">$${dayData.shortcutNet.toFixed(2)}</span>
-          </div>
-          <div class="result-item">
-            <span class="result-label">Profit Margin:</span>
-            <span class="result-value">${dayData.shortcutMargin.toFixed(2)}%</span>
-          </div>
-        </div>
-      `;
-      
-      // Show the By Day tab
-      showResultsTab('by-day');
-      
-      return dayData;
-    }
-    
-    function calculateMultiDayEvent() {
-      const clientName = document.getElementById('multiDayClientName').value;
-      const dayConfigs = document.querySelectorAll('.day-config');
-      const dayData = [];
-      
-      let totalApptsAll = 0;
-      let totalCostAll = 0;
-      let totalProRevAll = 0;
-      let totalHoursAll = 0;
-      let totalApptsPerHourAll = 0;
-      let totalApptsPerProPerHourAll = 0;
-      let dayCount = 0;
-      
-      dayConfigs.forEach(dayConfig => {
-        const dayId = dayConfig.getAttribute('data-day-id');
-        const dayResult = calculateSingleDay(dayId);
-        dayData.push(dayResult);
-        
-        // Add to totals
-        totalApptsAll += dayResult.totalAppointments;
-        totalCostAll += dayResult.totalCost;
-        totalProRevAll += dayResult.totalProRev;
-        totalHoursAll += dayResult.totalHours;
-        totalApptsPerHourAll += dayResult.totalApptsPerHour;
-        totalApptsPerProPerHourAll += dayResult.apptsPerHourPerPro;
-        dayCount++;
-      });
-      
-      // Calculate overall values
-      const shortcutNetAll = totalCostAll - totalProRevAll;
-      const shortcutMarginAll = (shortcutNetAll / totalCostAll) * 100;
-      const totalAnnualAll = totalCostAll * 12; // Assuming 12 events per year
-      
-      // Calculate averages for per-hour metrics
-      const avgApptsPerHour = Math.round(totalApptsPerHourAll / dayCount);
-      const avgApptsPerProPerHour = Math.round(totalApptsPerProPerHourAll / dayCount);
-      
-      // Update summary results - Remove decimal points from non-monetary values
-      document.getElementById('multi-totalHoursResult').textContent = `${totalHoursAll} hours`;
-      document.getElementById('multi-apptsPerProPerHour').textContent = `${avgApptsPerProPerHour}`;
-      document.getElementById('multi-apptsPerHour').textContent = `${avgApptsPerHour}`;
-      multiTotalAppts.textContent = totalApptsAll;
-      multiTotalCost.textContent = `$${totalCostAll.toFixed(2)}`;
-      multiTotalProRev.textContent = `$${totalProRevAll.toFixed(2)}`;
-      multiShortcutNet.textContent = `$${shortcutNetAll.toFixed(2)}`;
-      multiShortcutMargin.textContent = `${shortcutMarginAll.toFixed(2)}%`;
-      multiTotalAnnual.textContent = `$${totalAnnualAll.toFixed(2)}`;
-      
-      // Populate By Location results
-      const byLocationResults = document.getElementById('by-location-results');
-      byLocationResults.innerHTML = '<h3>Results By Location</h3>';
-      
-      // Group by location
-      const locationGroups = {};
-      
-      dayData.forEach(day => {
-        const location = day.location;
-        if (!locationGroups[location]) {
-          locationGroups[location] = {
-            totalAppointments: 0,
-            totalCost: 0,
-            totalProRev: 0,
-            shortcutNet: 0,
-            days: []
-          };
-        }
-        
-        locationGroups[location].totalAppointments += day.totalAppointments;
-        locationGroups[location].totalCost += day.totalCost;
-        locationGroups[location].totalProRev += day.totalProRev;
-        locationGroups[location].shortcutNet += day.shortcutNet;
-        locationGroups[location].days.push(day.dayLabel || `Day ${day.dayId}`);
-      });
-      
-      for (const location in locationGroups) {
-        const locationData = locationGroups[location];
-        
-        const locationSection = document.createElement('div');
-        locationSection.className = 'location-section';
-        
-        locationSection.innerHTML = `
-          <h4>${location}</h4>
-          <div class="result-card">
-            <h3>Client Details</h3>
-            <div class="result-item">
-              <span class="result-label">Days:</span>
-              <span class="result-value">${locationData.days.join(', ')}</span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">Total Appointments:</span>
-              <span class="result-value">${locationData.totalAppointments}</span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">Cost to Customer:</span>
-              <span class="result-value">$${locationData.totalCost.toFixed(2)}</span>
-            </div>
-          </div>
-          <div class="result-card">
-            <h3>Shortcut Details</h3>
-            <div class="result-item">
-              <span class="result-label">Professional Revenue:</span>
-              <span class="result-value">$${locationData.totalProRev.toFixed(2)}</span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">Shortcut Net:</span>
-              <span class="result-value">$${locationData.shortcutNet.toFixed(2)}</span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">Profit Margin:</span>
-              <span class="result-value">${(locationData.shortcutNet / locationData.totalCost * 100).toFixed(2)}%</span>
-            </div>
-          </div>
-        `;
-        
-        byLocationResults.appendChild(locationSection);
-      }
-      
-      // Store current calculation
-      currentCalculation = {
-        type: 'multi',
-        clientName,
-        days: dayData,
-        totalAppts: totalApptsAll,
-        totalCost: totalCostAll,
-        totalProRev: totalProRevAll,
-        shortcutNet: shortcutNetAll,
-        shortcutMargin: shortcutMarginAll,
-        totalAnnual: totalAnnualAll,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Show proposal button
-      document.querySelector('#multi-day-tab .proposal-actions').style.display = 'block';
-      
-      // Show summary tab
-      showResultsTab('summary');
-    }
-    
-    function resetMultiDayEvent() {
-      // Clear all days except the first one
-      const dayConfigs = document.querySelectorAll('.day-config');
-      for (let i = 1; i < dayConfigs.length; i++) {
-        dayConfigs[i].remove();
-      }
-      
-      // Reset first day
-      if (dayConfigs.length > 0) {
-        const firstDayId = dayConfigs[0].getAttribute('data-day-id');
-        document.getElementById(`location-${firstDayId}`).value = 'Location 1';
-        document.getElementById(`serviceType-${firstDayId}`).value = 'massage/spa';
-        document.getElementById(`totalHours-${firstDayId}`).value = 4;
-        document.getElementById(`appTime-${firstDayId}`).value = 20;
-        document.getElementById(`numPros-${firstDayId}`).value = 3;
-        document.getElementById(`proHourly-${firstDayId}`).value = 50;
-        document.getElementById(`hourlyRate-${firstDayId}`).value = 120;
-        document.getElementById(`earlyArrival-${firstDayId}`).value = 75;
-        document.getElementById(`discountPercent-${firstDayId}`).value = 0;
-        
-        updateDayServiceTypeFields(firstDayId);
-        updateDayTotalAppointments(firstDayId);
-      } else {
-        // If no days, add a new one
-        dayCounter = 0;
-        addNewDay();
-      }
-      
-      // Reset client name
-      document.getElementById('multiDayClientName').value = '';
-      
-      // Reset results
-      multiTotalAppts.textContent = '-';
-      multiTotalCost.textContent = '-';
-      multiTotalProRev.textContent = '-';
-      multiShortcutNet.textContent = '-';
-      multiShortcutMargin.textContent = '-';
-      multiTotalAnnual.textContent = '-';
-      
-      // Clear day and location results
-      document.getElementById('by-day-results').innerHTML = '<h3>Results By Day</h3>';
-      document.getElementById('by-location-results').innerHTML = '<h3>Results By Location</h3>';
-      
-      // Hide proposal button
-      document.querySelector('#multi-day-tab .proposal-actions').style.display = 'none';
-      
-      // Reset current calculation
-      currentCalculation = null;
-    }
-    
-    function showResultsTab(tabName) {
-      resultsTabs.forEach(tab => {
-        if (tab.getAttribute('data-results-tab') === tabName) {
-          tab.classList.add('active');
-        } else {
-          tab.classList.remove('active');
-        }
-      });
-      
-      resultsTabContents.forEach(content => {
-        if (content.id === `${tabName}-results`) {
-          content.style.display = 'block';
-        } else {
-          content.style.display = 'none';
-        }
-      });
-    }
-    
-    function showProposalModal(type) {
-      if (!currentCalculation) {
-        alert('Please calculate results first.');
-        return;
-      }
-      
-      // Populate form with client name
-      proposalClientName.value = currentCalculation.clientName || '';
-      
-      // Set current date as default
-      const today = new Date();
-      const formattedDate = today.toISOString().split('T')[0];
-      proposalEventDate.value = formattedDate;
-      
-      // Show modal
-      proposalModal.style.display = 'block';
-    }
-    
-    function generateProposalPreview() {
-      const clientName = proposalClientName.value;
-      const contactName = proposalContactName.value;
-      const email = proposalEmail.value;
-      const phone = proposalPhone.value;
-      const eventDate = proposalEventDate.value;
-      const eventLocation = proposalEventLocation.value;
-      const notes = proposalNotes.value;
-      
-      if (!clientName || !contactName || !email || !eventDate || !eventLocation) {
-        alert('Please fill in all required fields.');
-        return;
-      }
-      
-      // Format date
-      const formattedDate = new Date(eventDate).toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-      
-      // Generate proposal HTML
-      let proposalHTML = `
-        <div class="proposal-document">
-          <div class="proposal-header">
-            <img src="shortcut-logo.svg" alt="Shortcut Logo" class="proposal-logo">
-            <h1>Wellness Services Proposal</h1>
-            <p>Prepared for ${clientName}</p>
-          </div>
-          
-          <div class="proposal-info">
-            <div class="proposal-info-item">
-              <span class="proposal-info-label">Client:</span>
-              <span class="proposal-info-value">${clientName}</span>
-            </div>
-            <div class="proposal-info-item">
-              <span class="proposal-info-label">Contact Person:</span>
-              <span class="proposal-info-value">${contactName}</span>
-            </div>
-            <div class="proposal-info-item">
-              <span class="proposal-info-label">Email:</span>
-              <span class="proposal-info-value">${email}</span>
-            </div>
-            <div class="proposal-info-item">
-              <span class="proposal-info-label">Phone:</span>
-              <span class="proposal-info-value">${phone || 'N/A'}</span>
-            </div>
-            <div class="proposal-info-item">
-              <span class="proposal-info-label">Event Date:</span>
-              <span class="proposal-info-value">${formattedDate}</span>
-            </div>
-            <div class="proposal-info-item">
-              <span class="proposal-info-label">Event Location:</span>
-              <span class="proposal-info-value">${eventLocation}</span>
-            </div>
-          </div>
-          
-          <div class="proposal-intro">
-            <h2>Introduction</h2>
-            <p>Thank you for considering Shortcut for your wellness services needs. We are pleased to present this proposal for your upcoming event. Our team of professional wellness providers is dedicated to delivering exceptional service and creating a memorable experience for your team members.</p>
-            <p>Based on the information provided, we have prepared the following proposal tailored to your specific requirements.</p>
-          </div>
-          
-          <div class="proposal-details">
-            <h2>Service Details</h2>
-      `;
-      
-      if (currentCalculation.type === 'single') {
-        const serviceType = currentCalculation.serviceType;
-        const serviceTypeFormatted = serviceType.charAt(0).toUpperCase() + serviceType.slice(1);
-        
-        proposalHTML += `
-          <div class="proposal-service-details">
-            <h3>${serviceTypeFormatted} Services</h3>
-            <div class="service-detail-item">
-              <span class="service-detail-label">Event Duration:</span>
-              <span class="service-detail-value">${currentCalculation.totalHours} hours</span>
-            </div>
-            <div class="service-detail-item">
-              <span class="service-detail-label">Appointment Duration:</span>
-              <span class="service-detail-value">${currentCalculation.appTime} minutes</span>
-            </div>
-            <div class="service-detail-item">
-              <span class="service-detail-label">Number of Professionals:</span>
-              <span class="service-detail-value">${currentCalculation.numPros}</span>
-            </div>
-            <div class="service-detail-item">
-              <span class="service-detail-label">Total Appointments:</span>
-              <span class="service-detail-value">${currentCalculation.totalAppts}</span>
-            </div>
-          </div>
-        `;
-      } else {
-        // Multi-day event
-        proposalHTML += `<p>This proposal covers a multi-day/location event with the following details:</p>`;
-        
-        currentCalculation.days.forEach(day => {
-          const serviceType = day.serviceType;
-          const serviceTypeFormatted = serviceType.charAt(0).toUpperCase() + serviceType.slice(1);
-          
-          proposalHTML += `
-            <div class="proposal-service-details">
-              <h3>${day.dayLabel} - ${day.location} (${serviceTypeFormatted})</h3>
-              <div class="service-detail-item">
-                <span class="service-detail-label">Event Duration:</span>
-                <span class="service-detail-value">${day.totalHours} hours</span>
-              </div>
-              <div class="service-detail-item">
-                <span class="service-detail-label">Appointment Duration:</span>
-                <span class="service-detail-value">${day.appTime} minutes</span>
-              </div>
-              <div class="service-detail-item">
-                <span class="service-detail-label">Number of Professionals:</span>
-                <span class="service-detail-value">${day.numPros}</span>
-              </div>
-              <div class="service-detail-item">
-                <span class="service-detail-label">Total Appointments:</span>
-                <span class="service-detail-value">${day.totalAppointments}</span>
-              </div>
-            </div>
-          `;
-        });
-      }
-      
-      proposalHTML += `
-          </div>
-          
-          <div class="proposal-pricing">
-            <h2>Pricing</h2>
-            <div class="pricing-total">
-              <span class="pricing-total-label">Total Investment:</span>
-              <span class="pricing-total-value">$${currentCalculation.totalCost.toFixed(2)}</span>
-            </div>
-          </div>
-          
-          <div class="proposal-terms">
-            <h2>Terms and Conditions</h2>
-            <p>The following terms and conditions apply to this proposal:</p>
-            <ul>
-              <li>A 50% deposit is required to secure the booking.</li>
-              <li>Final payment is due on the day of the event.</li>
-              <li>Cancellations made less than 7 days before the event are subject to a 25% cancellation fee.</li>
-              <li>Shortcut requires a minimum of 2 hours for setup before the event start time.</li>
-              <li>This proposal is valid for 30 days from the date of issue.</li>
-            </ul>
-          </div>
-      `;
-      
-      if (notes) {
-        proposalHTML += `
-          <div class="proposal-notes">
-            <h2>Additional Notes</h2>
-            <p>${notes}</p>
-          </div>
-        `;
-      }
-      
-      proposalHTML += `
-          <div class="proposal-signature">
-            <div class="signature-block">
-              <div class="signature-line">
-                <div class="signature-name">Shortcut Representative</div>
-                <div class="signature-date">Date</div>
-              </div>
-            </div>
-            <div class="signature-block">
-              <div class="signature-line">
-                <div class="signature-name">${clientName} Representative</div>
-                <div class="signature-date">Date</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      // Display proposal preview
-      proposalPreviewContainer.innerHTML = proposalHTML;
-      
-      // Show client logo if uploaded
-      if (clientLogoPreview.style.display === 'block') {
-        const clientLogoImg = document.createElement('img');
-        clientLogoImg.src = clientLogoPreview.src;
-        clientLogoImg.alt = `${clientName} Logo`;
-        clientLogoImg.style.maxWidth = '150px';
-        clientLogoImg.style.marginBottom = '15px';
-        
-        const proposalHeader = proposalPreviewContainer.querySelector('.proposal-header');
-        proposalHeader.insertBefore(clientLogoImg, proposalHeader.querySelector('h1'));
-      }
-      
-      // Hide proposal form modal and show preview modal
-      proposalModal.style.display = 'none';
-      proposalPreviewModal.style.display = 'block';
-    }
-    
-    function showPresetTab(tabName) {
-      presetTabButtons.forEach(button => {
-        if (button.getAttribute('data-preset-tab') === tabName) {
-          button.classList.add('active');
-        } else {
-          button.classList.remove('active');
-        }
-      });
-      
-      presetTabContents.forEach(content => {
-        if (content.id === `${tabName}-presets`) {
-          content.style.display = 'block';
-        } else {
-          content.style.display = 'none';
-        }
-      });
-    }
-    
-    function applyPreset(preset) {
-      // Set service type first to trigger default values
-      if (preset.startsWith('massage')) {
-        serviceTypeSelect.value = 'massage/spa';
-      } else if (preset.startsWith('hair')) {
-        serviceTypeSelect.value = 'hair/nails';
-      } else if (preset.startsWith('headshot')) {
-        serviceTypeSelect.value = 'headshot';
-      }
-      
-      // Trigger service type change to update defaults
-      updateServiceTypeFields();
-      
-      // Apply preset values based on type and size
-      if (preset === 'massage-small') {
-        // Small Massage/Spa: 24 appointments
-        // With 20 min appointments and 3 professionals per hour = 9 appts/hour
-        // 24 / 9 = 2.67 hours, round to 3 hours with 2 professionals
-        totalHoursInput.value = 3;
-        appTimeInput.value = 20;
-        numProsInput.value = 2;
-      } else if (preset === 'massage-medium') {
-        // Medium Massage/Spa: 36 appointments
-        // With 20 min appointments and 3 professionals = 9 appts/hour
-        // 36 / 9 = 4 hours
-        totalHoursInput.value = 4;
-        appTimeInput.value = 20;
-        numProsInput.value = 3;
-      } else if (preset === 'massage-large') {
-        // Large Massage/Spa: 54 appointments
-        // With 20 min appointments and 3 professionals = 9 appts/hour
-        // 54 / 9 = 6 hours
-        totalHoursInput.value = 6;
-        appTimeInput.value = 20;
-        numProsInput.value = 3;
-      } else if (preset === 'hair-small') {
-        // Small Hair/Nails: 24 appointments
-        // With 30 min appointments and 2 professionals = 4 appts/hour
-        // 24 / 4 = 6 hours
-        totalHoursInput.value = 6;
-        appTimeInput.value = 30;
-        numProsInput.value = 2;
-      } else if (preset === 'hair-medium') {
-        // Medium Hair/Nails: 32 appointments
-        // With 30 min appointments and 2 professionals = 4 appts/hour
-        // 32 / 4 = 8 hours
-        totalHoursInput.value = 8;
-        appTimeInput.value = 30;
-        numProsInput.value = 2;
-      } else if (preset === 'hair-large') {
-        // Large Hair/Nails: 48 appointments
-        // With 30 min appointments and 3 professionals = 6 appts/hour
-        // 48 / 6 = 8 hours
-        totalHoursInput.value = 8;
-        appTimeInput.value = 30;
-        numProsInput.value = 3;
-      } else if (preset === 'headshot-small') {
-        // Small Headshot: 30 appointments
-        // With 12 min appointments and 2 professionals = 10 appts/hour
-        // 30 / 10 = 3 hours
-        totalHoursInput.value = 3;
-        appTimeInput.value = 12;
-        numProsInput.value = 2;
-      } else if (preset === 'headshot-medium') {
-        // Medium Headshot: 60 appointments
-        // With 12 min appointments and 3 professionals = 15 appts/hour
-        // 60 / 15 = 4 hours
-        totalHoursInput.value = 4;
-        appTimeInput.value = 12;
-        numProsInput.value = 3;
-      } else if (preset === 'headshot-large') {
-        // Large Headshot: 90 appointments
-        // With 12 min appointments and 3 professionals = 15 appts/hour
-        // 90 / 15 = 6 hours
-        totalHoursInput.value = 6;
-        appTimeInput.value = 12;
-        numProsInput.value = 3;
-      }
-      
-      // Update total appointments
-      updateTotalAppointments();
-      
-      // Automatically calculate
-      calculateSingleEvent();
-    }
-    
-    // Initialize
-    updateServiceTypeFields();
-    updateTotalAppointments();
-    
-    // Add event listeners to calculate day buttons for Day 1
-    const calculateDay1Btn = document.querySelector('.calculate-day-btn[data-day-id="1"]');
-    if (calculateDay1Btn) {
-      calculateDay1Btn.addEventListener('click', () => {
-        calculateSingleDay(1);
-      });
-    }
-    
-    // Add event listeners for Day 1 form fields
-    const serviceTypeSelect1 = document.getElementById('serviceType-1');
-    const totalHoursInput1 = document.getElementById('totalHours-1');
-    const appTimeInput1 = document.getElementById('appTime-1');
-    const numProsInput1 = document.getElementById('numPros-1');
-    
-    if (serviceTypeSelect1) {
-      serviceTypeSelect1.addEventListener('change', () => {
-        updateDayServiceTypeFields(1);
-        updateDayTotalAppointments(1);
-      });
-    }
-    
-    if (totalHoursInput1) {
-      totalHoursInput1.addEventListener('input', () => {
-        updateDayTotalAppointments(1);
-      });
-    }
-    
-    if (appTimeInput1) {
-      appTimeInput1.addEventListener('input', () => {
-        updateDayTotalAppointments(1);
-      });
-    }
-    
-    if (numProsInput1) {
-      numProsInput1.addEventListener('input', () => {
-        updateDayTotalAppointments(1);
-      });
+
+    // Check if already authenticated
+    if (sessionStorage.getItem('authenticated') === 'true') {
+      passwordScreen.style.display = 'none';
+      container.style.display = 'block';
     }
 
-    // Add after existing variable declarations
-    const shareProposalBtn = document.getElementById('share-proposal-btn');
-    const shareProposalModal = document.getElementById('share-proposal-modal');
-    const proposalLinkInput = document.getElementById('proposal-link');
-    const proposalPasswordInput = document.getElementById('proposal-password');
-    const copyAllBtn = document.getElementById('copy-all-btn');
-    const closeShareModalBtn = document.getElementById('close-share-modal-btn');
-    const copyButtons = document.querySelectorAll('.copy-btn');
-    
-    // Generate random password
-    function generateRandomPassword() {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let password = '';
-      for (let i = 0; i < 6; i++) {
-        password += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return password;
-    }
-    
-    // Generate unique ID
-    function generateUniqueId() {
-      return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    }
-    
-    // Get current calculator state
-    function getCurrentCalculatorState() {
-      const state = {
-        serviceType: serviceTypeSelect.value,
-        totalHours: parseFloat(totalHoursInput.value),
-        appTime: parseFloat(appTimeInput.value),
-        numPros: parseInt(numProsInput.value),
-        proHourly: parseFloat(proHourlyInput.value),
-        hourlyRate: parseFloat(hourlyRateInput.value),
-        discountPercent: parseFloat(discountPercentInput.value),
-        eventsPerYear: parseInt(eventsPerYearInput.value)
-      };
-      
-      if (state.serviceType === 'headshot') {
-        state.retouchingCost = parseFloat(retouchingCostInput.value);
-      }
-      
-      return state;
-    }
-    
-    // Generate shareable proposal
-    function generateShareableProposal() {
-      // Generate random password
-      const accessCode = generateRandomPassword();
-      
-      // Get current calculator state
-      const proposalData = {
-        clientInfo: {
-          name: document.getElementById('clientName').value
-        },
-        calculatorState: getCurrentCalculatorState(),
-        editableFields: ['totalHours', 'numPros', 'eventsPerYear'],
-        results: {
-          totalAppts: parseInt(totalAppointmentsInput.value),
-          totalCost: parseFloat(totalCost.textContent.replace('$', '').replace(',', '')),
-          totalProRev: parseFloat(totalProRev.textContent.replace('$', '').replace(',', '')),
-          shortcutNet: parseFloat(shortcutNet.textContent.replace('$', '').replace(',', '')),
-          shortcutMargin: parseFloat(shortcutMargin.textContent.replace('%', '')),
-          totalAnnual: parseFloat(totalAnnual.textContent.replace('$', '').replace(',', ''))
-        }
-      };
-      
-      // Encode data
-      const encodedData = btoa(JSON.stringify(proposalData));
-      
-      // Generate unique ID
-      const proposalId = generateUniqueId();
-      
-      // Construct URL
-      const shareableUrl = `${window.location.origin}/proposal/${proposalId}#${encodedData}`;
-      
-      // Show sharing modal with generated info
-      proposalLinkInput.value = shareableUrl;
-      proposalPasswordInput.value = accessCode;
-      shareProposalModal.style.display = 'block';
-    }
-    
-    // Copy text to clipboard
-    async function copyToClipboard(text) {
-      try {
-        await navigator.clipboard.writeText(text);
-        return true;
-      } catch (err) {
-        console.error('Failed to copy text: ', err);
-        return false;
-      }
-    }
-    
-    // Show copied tooltip
-    function showCopiedTooltip(element) {
-      const tooltip = document.createElement('div');
-      tooltip.className = 'copied-tooltip';
-      tooltip.textContent = 'Copied!';
-      
-      // Position tooltip near the element
-      const rect = element.getBoundingClientRect();
-      tooltip.style.position = 'absolute';
-      tooltip.style.top = `${rect.top - 30}px`;
-      tooltip.style.left = `${rect.left + (rect.width / 2) - 30}px`;
-      
-      document.body.appendChild(tooltip);
-      setTimeout(() => tooltip.classList.add('show'), 10);
-      
-      // Remove tooltip after animation
-      setTimeout(() => {
-        tooltip.classList.remove('show');
-        setTimeout(() => tooltip.remove(), 300);
-      }, 1500);
-    }
-    
-    // Event Listeners
-    shareProposalBtn.addEventListener('click', generateShareableProposal);
-    
-    closeShareModalBtn.addEventListener('click', () => {
-      shareProposalModal.style.display = 'none';
-    });
-    
-    copyButtons.forEach(button => {
-      button.addEventListener('click', async () => {
-        const type = button.getAttribute('data-copy');
-        const text = type === 'link' ? proposalLinkInput.value : proposalPasswordInput.value;
-        
-        if (await copyToClipboard(text)) {
-          showCopiedTooltip(button);
-        }
-      });
-    });
-    
-    copyAllBtn.addEventListener('click', async () => {
-      const text = `Proposal Link: ${proposalLinkInput.value}\nAccess Code: ${proposalPasswordInput.value}`;
-      
-      if (await copyToClipboard(text)) {
-        showCopiedTooltip(copyAllBtn);
-      }
-    });
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', (e) => {
-      if (e.target === shareProposalModal) {
-        shareProposalModal.style.display = 'none';
-      }
-    });
+    // Make checkPassword available globally
+    window.checkPassword = checkPassword;
+
+    // Import and initialize share proposal functionality
+    import { initializeShareProposal } from './js/share-proposal.js';
+    initializeShareProposal();
   </script>
 </body>
 </html>

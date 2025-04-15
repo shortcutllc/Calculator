@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /proposals/{proposalId} {
+      // Allow reading if the correct access code is provided
+      allow read: if request.auth == null 
+        && request.query.accessCode == resource.data.accessCode;
+      
+      // Allow creating new proposals
+      allow create: if request.auth == null 
+        && request.resource.data.keys().hasAll(['clientInfo', 'calculatorState', 'accessCode', 'createdAt'])
+        && request.resource.data.createdAt is timestamp;
+      
+      // Allow updating only the viewCount and lastViewed fields
+      allow update: if request.auth == null
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['viewCount', 'lastViewed'])
+        && request.resource.data.lastViewed is timestamp;
+    }
+  }
+} 
