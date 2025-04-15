@@ -231,14 +231,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Define preset values
         const presets = {
             'massage/spa': {
-                small: { totalHours: 3, appTime: 20, numPros: 2, proHourly: 50, hourlyRate: 120 },
-                medium: { totalHours: 4, appTime: 20, numPros: 3, proHourly: 50, hourlyRate: 120 },
-                large: { totalHours: 6, appTime: 20, numPros: 5, proHourly: 50, hourlyRate: 120 }
+                small: { totalHours: 3, appTime: 20, numPros: 2, proHourly: 50, hourlyRate: 135 },
+                medium: { totalHours: 4, appTime: 20, numPros: 3, proHourly: 50, hourlyRate: 135 },
+                large: { totalHours: 6, appTime: 20, numPros: 5, proHourly: 50, hourlyRate: 135 }
             },
             'hair/nails': {
-                small: { totalHours: 3, appTime: 30, numPros: 2, proHourly: 50, hourlyRate: 120 },
-                medium: { totalHours: 4, appTime: 30, numPros: 3, proHourly: 50, hourlyRate: 120 },
-                large: { totalHours: 6, appTime: 30, numPros: 5, proHourly: 50, hourlyRate: 120 }
+                small: { totalHours: 3, appTime: 30, numPros: 2, proHourly: 50, hourlyRate: 135 },
+                medium: { totalHours: 4, appTime: 30, numPros: 3, proHourly: 50, hourlyRate: 135 },
+                large: { totalHours: 6, appTime: 30, numPros: 5, proHourly: 50, hourlyRate: 135 }
             },
             'headshot': {
                 small: { totalHours: 3, appTime: 12, numPros: 1, proHourly: 60, retouchingCost: 40 },
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } else {
             if (document.getElementById('hourlyRate')) {
-                document.getElementById('hourlyRate').value = preset.hourlyRate || 120;
+                document.getElementById('hourlyRate').value = preset.hourlyRate || 135;
             }
             if (document.getElementById('earlyArrival')) {
                 document.getElementById('earlyArrival').value = preset.earlyArrival || 75;
@@ -591,35 +591,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 nonHeadshotFields.forEach(field => field.style.display = 'none');
             }
         }
+        
+        // Set default hourly rate based on service type
+        const hourlyRateInput = selectElement.closest('.day-form').querySelector(`input[name="hourlyRate-day${dayNumber}"]`);
+        if (serviceType === 'massage/spa' || serviceType === 'hair/nails') {
+            hourlyRateInput.value = '135';
+        }
+        
+        // Update preset options based on service type
+        updatePresetOptions(serviceType, dayNumber);
     }
     
     // Handle service type change for single event
     function handleServiceTypeChange(selectElement) {
         const serviceType = selectElement.value;
-        const headshotFields = document.querySelectorAll('.headshot-field');
-        const nonHeadshotFields = document.querySelectorAll('.non-headshot-field');
+        const hourlyRateInput = selectElement.closest('.calculator-form').querySelector('input[name="hourlyRate"]');
         
-        // Set appointment time based on service type
-        if (serviceType === 'hair/nails') {
-            document.getElementById('appTime').value = 30;
-            // Show non-headshot fields, hide headshot fields
-            headshotFields.forEach(field => field.style.display = 'none');
-            nonHeadshotFields.forEach(field => field.style.display = 'block');
-        } else if (serviceType === 'massage/spa') {
-            // Default for massage is 20 minutes if not already set
-            if (document.getElementById('appTime').value == 30 || document.getElementById('appTime').value == 12) {
-                document.getElementById('appTime').value = 20;
-            }
-            // Show non-headshot fields, hide headshot fields
-            headshotFields.forEach(field => field.style.display = 'none');
-            nonHeadshotFields.forEach(field => field.style.display = 'block');
-        } else if (serviceType === 'headshot') {
-            document.getElementById('appTime').value = 12;
-            document.getElementById('proHourly').value = 60;
-            // Show headshot fields, hide non-headshot fields
-            headshotFields.forEach(field => field.style.display = 'block');
-            nonHeadshotFields.forEach(field => field.style.display = 'none');
+        // Set default hourly rate based on service type
+        if (serviceType === 'massage/spa' || serviceType === 'hair/nails') {
+            hourlyRateInput.value = '135';
         }
+        
+        // Update preset options based on service type
+        updatePresetOptions(serviceType);
     }
     
     // Calculate and display results for multi-day event
@@ -855,7 +849,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 else if (name === 'numPros-day1') input.value = 3;
                 else if (name === 'proHourly-day1') input.value = 50;
                 else if (name === 'retouchingCost-day1') input.value = 40;
-                else if (name === 'hourlyRate-day1') input.value = 120;
+                else if (name === 'hourlyRate-day1') input.value = 135;
                 else if (name === 'earlyArrival-day1') input.value = 75;
                 else if (name === 'discountPercent-day1') input.value = 0;
                 else if (name === 'eventsPerYear-day1') input.value = 12;
