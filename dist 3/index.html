@@ -918,10 +918,72 @@
       background-color: #8ee6e6;
       transform: translateY(-2px);
     }
+    
+    /* Add password protection styles */
+    .password-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--secondary-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    
+    .password-container {
+      background-color: var(--white);
+      padding: 40px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    
+    .password-container img {
+      height: 45px;
+      margin-bottom: 30px;
+    }
+    
+    .password-container h2 {
+      color: var(--secondary-color);
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    
+    .password-container input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid var(--medium-gray);
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      font-family: 'Outfit', sans-serif;
+    }
+    
+    .password-error {
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <!-- Password Protection Screen -->
+  <div class="password-screen" id="password-screen">
+    <div class="password-container">
+      <img src="shortcut-logo.svg" alt="Shortcut Logo">
+      <h2>Employee Access Only</h2>
+      <input type="password" id="password-input" placeholder="Enter password">
+      <p class="password-error" id="password-error">Incorrect password. Please try again.</p>
+      <button class="btn btn-primary" onclick="checkPassword()">Enter</button>
+    </div>
+  </div>
+
+  <div class="container" style="display: none;">
     <header>
       <img src="shortcut-logo.svg" alt="Shortcut Logo" class="logo">
     </header>
@@ -1375,6 +1437,38 @@
   </div>
 
   <script>
+    // Password protection
+    const correctPassword = 'LouieJack1!';
+    const passwordScreen = document.getElementById('password-screen');
+    const mainContent = document.querySelector('.container');
+    const passwordInput = document.getElementById('password-input');
+    const passwordError = document.getElementById('password-error');
+    
+    // Check if already authenticated
+    if (sessionStorage.getItem('authenticated')) {
+      passwordScreen.style.display = 'none';
+      mainContent.style.display = 'block';
+    }
+    
+    function checkPassword() {
+      if (passwordInput.value === correctPassword) {
+        passwordScreen.style.display = 'none';
+        mainContent.style.display = 'block';
+        sessionStorage.setItem('authenticated', 'true');
+        passwordError.style.display = 'none';
+      } else {
+        passwordError.style.display = 'block';
+        passwordInput.value = '';
+      }
+    }
+    
+    // Allow Enter key to submit
+    passwordInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        checkPassword();
+      }
+    });
+    
     // DOM Elements
     const welcomeScreen = document.getElementById('welcome-screen');
     const tabs = document.querySelector('.tabs');
