@@ -240,11 +240,11 @@ class PricingCalculator {
         const presets = {
             'massage/spa': [
                 {
-                    name: 'Small Event (30 appts)',
+                    name: 'Small Event (24 appts)',
                     serviceType: 'massage/spa',
-                    totalAppts: 30,
+                    totalAppts: 24,
                     numPros: 2,
-                    totalHours: 5,
+                    totalHours: 4,
                     appTime: 20,
                     proHourly: 50,
                     hourlyRate: 135,
