@@ -562,6 +562,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleServiceTypeChange(selectElement, dayNumber) {
         const serviceType = selectElement.value;
         const dayConfig = document.querySelector(`.day-config[data-day-id="${dayNumber}"]`);
+        const hourlyRateInput = dayConfig.querySelector(`input[name="hourlyRate-day${dayNumber}"]`);
         
         if (dayConfig) {
             const appTimeInput = dayConfig.querySelector(`[name="appTime-day${dayNumber}"]`);
@@ -575,6 +576,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show non-headshot fields, hide headshot fields
                 headshotFields.forEach(field => field.style.display = 'none');
                 nonHeadshotFields.forEach(field => field.style.display = 'block');
+                // Set default hourly rate
+                hourlyRateInput.value = '135';
             } else if (serviceType === 'massage/spa') {
                 // Default for massage is 20 minutes if not already set
                 if (appTimeInput && (appTimeInput.value == 30 || appTimeInput.value == 12)) {
@@ -583,6 +586,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show non-headshot fields, hide headshot fields
                 headshotFields.forEach(field => field.style.display = 'none');
                 nonHeadshotFields.forEach(field => field.style.display = 'block');
+                // Set default hourly rate
+                hourlyRateInput.value = '135';
             } else if (serviceType === 'headshot') {
                 if (appTimeInput) appTimeInput.value = 12;
                 if (proHourlyInput) proHourlyInput.value = 60;
@@ -592,12 +597,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Set default hourly rate based on service type
-        const hourlyRateInput = selectElement.closest('.day-form').querySelector(`input[name="hourlyRate-day${dayNumber}"]`);
-        if (serviceType === 'massage/spa' || serviceType === 'hair/nails') {
-            hourlyRateInput.value = '135';
-        }
-        
         // Update preset options based on service type
         updatePresetOptions(serviceType, dayNumber);
     }
@@ -605,11 +604,34 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle service type change for single event
     function handleServiceTypeChange(selectElement) {
         const serviceType = selectElement.value;
+        const headshotFields = document.querySelectorAll('.headshot-field');
+        const nonHeadshotFields = document.querySelectorAll('.non-headshot-field');
         const hourlyRateInput = selectElement.closest('.calculator-form').querySelector('input[name="hourlyRate"]');
         
-        // Set default hourly rate based on service type
-        if (serviceType === 'massage/spa' || serviceType === 'hair/nails') {
+        // Set appointment time based on service type
+        if (serviceType === 'hair/nails') {
+            document.getElementById('appTime').value = 30;
+            // Show non-headshot fields, hide headshot fields
+            headshotFields.forEach(field => field.style.display = 'none');
+            nonHeadshotFields.forEach(field => field.style.display = 'block');
+            // Set default hourly rate
             hourlyRateInput.value = '135';
+        } else if (serviceType === 'massage/spa') {
+            // Default for massage is 20 minutes if not already set
+            if (document.getElementById('appTime').value == 30 || document.getElementById('appTime').value == 12) {
+                document.getElementById('appTime').value = 20;
+            }
+            // Show non-headshot fields, hide headshot fields
+            headshotFields.forEach(field => field.style.display = 'none');
+            nonHeadshotFields.forEach(field => field.style.display = 'block');
+            // Set default hourly rate
+            hourlyRateInput.value = '135';
+        } else if (serviceType === 'headshot') {
+            document.getElementById('appTime').value = 12;
+            document.getElementById('proHourly').value = 60;
+            // Show headshot fields, hide non-headshot fields
+            headshotFields.forEach(field => field.style.display = 'block');
+            nonHeadshotFields.forEach(field => field.style.display = 'none');
         }
         
         // Update preset options based on service type
