@@ -89,4 +89,36 @@ function populatePresets(serviceType) {
             presetContainer.appendChild(message);
         }
     }
-} 
+}
+
+function showError(message) {
+    const errorElement = document.getElementById('password-error');
+    errorElement.textContent = message;
+    errorElement.classList.add('show');
+    setTimeout(() => errorElement.classList.remove('show'), 3000);
+}
+
+function checkPassword(event) {
+    event.preventDefault();
+    const password = document.getElementById('password-input').value;
+    const correctPassword = 'shortcut2024'; // This should match your expected password
+
+    if (password === correctPassword) {
+        document.getElementById('password-screen').style.display = 'none';
+        document.querySelector('.container').style.display = 'block';
+        // Save successful login in session storage
+        sessionStorage.setItem('authenticated', 'true');
+    } else {
+        showError('Incorrect password. Please try again.');
+        document.getElementById('password-input').value = '';
+    }
+    return false;
+}
+
+// Check for saved authentication on page load
+window.addEventListener('load', function() {
+    if (sessionStorage.getItem('authenticated') === 'true') {
+        document.getElementById('password-screen').style.display = 'none';
+        document.querySelector('.container').style.display = 'block';
+    }
+}); 

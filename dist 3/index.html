@@ -1178,11 +1178,20 @@
   <!-- Password Protection Screen -->
   <div class="password-screen" id="password-screen">
     <div class="password-container">
-      <img src="assets/shortcut-logo-blue.svg" alt="Shortcut Logo">
-      <h2>Employee Access Only</h2>
-      <input type="password" id="password-input" placeholder="Enter password">
-      <p class="password-error" id="password-error">Incorrect password. Please try again.</p>
-      <button class="btn btn-primary" onclick="checkPassword()">Enter</button>
+        <img src="assets/shortcut-logo-blue.svg" alt="Shortcut Logo">
+        <h2>Employee Access Only</h2>
+        <form id="password-form" onsubmit="return checkPassword(event)">
+            <div class="password-field">
+                <input type="password" 
+                       id="password-input" 
+                       name="password"
+                       placeholder="Enter password"
+                       autocomplete="current-password"
+                       required>
+                <div class="password-error" id="password-error"></div>
+            </div>
+            <button type="submit">Enter</button>
+        </form>
     </div>
   </div>
 
