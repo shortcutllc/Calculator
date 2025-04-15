@@ -1798,7 +1798,7 @@
     </div>
   </div>
 
-  <script type="module">
+  <script>
     // Password protection
     const correctPassword = 'LouieJack1!';
     const passwordScreen = document.getElementById('password-screen');
@@ -1822,10 +1822,9 @@
       passwordScreen.style.display = 'none';
       container.style.display = 'block';
     }
+  </script>
 
-    // Make checkPassword available globally
-    window.checkPassword = checkPassword;
-
+  <script type="module">
     // Import and initialize share proposal functionality
     import { initializeShareProposal } from './js/share-proposal.js';
     initializeShareProposal();
