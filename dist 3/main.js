@@ -174,8 +174,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle preset button clicks
     presetButtons.forEach(button => {
         button.addEventListener('click', function() {
-            const presetType = this.getAttribute('data-preset-type');
-            const presetSize = this.getAttribute('data-preset-size');
+            const preset = this.getAttribute('data-preset');
+            const [presetType, presetSize] = preset.split('-');
             
             // Navigate to single event tab from welcome screen
             welcomeScreen.style.display = 'none';
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Define preset values
         const presets = {
             'massage/spa': {
-                small: { totalHours: 3, appTime: 20, numPros: 2, proHourly: 50, hourlyRate: 135 },
+                small: { totalHours: 4, appTime: 20, numPros: 2, proHourly: 50, hourlyRate: 135 },
                 medium: { totalHours: 4, appTime: 20, numPros: 3, proHourly: 50, hourlyRate: 135 },
                 large: { totalHours: 6, appTime: 20, numPros: 5, proHourly: 50, hourlyRate: 135 }
             },
