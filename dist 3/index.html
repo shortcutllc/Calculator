@@ -1002,8 +1002,8 @@
               </div>
 
               <div class="form-group non-headshot-field">
-                <label for="earlyArrival">Early Arrival Fee ($):</label>
-                <input type="number" id="earlyArrival" name="earlyArrival" min="0" max="500" value="75" required>
+                <label for="earlyArrival">Early Arrival Bonus ($):</label>
+                <input type="number" id="earlyArrival" name="earlyArrival" min="0" max="500" value="25" readonly>
               </div>
 
               <div class="form-group">
@@ -1191,8 +1191,8 @@
                   </div>
                   
                   <div class="form-group non-headshot-field">
-                    <label for="earlyArrival-1">Early Arrival Fee ($):</label>
-                    <input type="number" id="earlyArrival-1" name="earlyArrival-1" min="0" max="500" value="75" required>
+                    <label for="earlyArrival-1">Early Arrival Bonus ($):</label>
+                    <input type="number" id="earlyArrival-1" name="earlyArrival-1" min="0" max="500" value="25" readonly>
                   </div>
                   
                   <div class="form-group">
@@ -1695,9 +1695,10 @@
         totalCostValue = totalProRevValue + (totalApptsValue * retouchingCost);
       } else {
         const hourlyRate = parseFloat(hourlyRateInput.value);
-        const earlyArrival = parseFloat(earlyArrivalInput.value);
-        totalProRevValue = totalHours * numPros * proHourly;
-        totalCostValue = (totalHours * hourlyRate * numPros) + earlyArrival;
+        const earlyArrivalBase = parseFloat(earlyArrivalInput.value); // Base rate per pro
+        const totalEarlyArrival = earlyArrivalBase * numPros; // Total early arrival bonus
+        totalProRevValue = (totalHours * numPros * proHourly) + totalEarlyArrival;
+        totalCostValue = (totalHours * hourlyRate * numPros);
       }
       
       // Apply discount
@@ -1807,8 +1808,8 @@
           </div>
           
           <div class="form-group non-headshot-field">
-            <label for="earlyArrival-${dayCounter}">Early Arrival Fee ($):</label>
-            <input type="number" id="earlyArrival-${dayCounter}" name="earlyArrival-${dayCounter}" min="0" max="500" value="75" required>
+            <label for="earlyArrival-${dayCounter}">Early Arrival Bonus ($):</label>
+            <input type="number" id="earlyArrival-${dayCounter}" name="earlyArrival-${dayCounter}" min="0" max="500" value="25" readonly>
           </div>
           
           <div class="form-group">
@@ -1939,9 +1940,10 @@
         totalCostValue = totalProRevValue + (totalAppts * retouchingCost);
       } else {
         const hourlyRate = parseFloat(document.getElementById(`hourlyRate-${dayId}`).value);
-        const earlyArrival = parseFloat(document.getElementById(`earlyArrival-${dayId}`).value);
-        totalProRevValue = totalHours * numPros * proHourly;
-        totalCostValue = (totalHours * hourlyRate * numPros) + earlyArrival;
+        const earlyArrivalBase = parseFloat(document.getElementById(`earlyArrival-${dayId}`).value); // Base rate per pro
+        const totalEarlyArrival = earlyArrivalBase * numPros; // Total early arrival bonus
+        totalProRevValue = (totalHours * numPros * proHourly) + totalEarlyArrival;
+        totalCostValue = (totalHours * hourlyRate * numPros);
       }
       
       // Apply discount
