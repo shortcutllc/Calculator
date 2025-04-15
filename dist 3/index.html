@@ -248,10 +248,6 @@
     .form-group textarea {
       width: 100%;
       padding: 12px;
-      border: 1px solid var(--medium-gray);
-      border-radius: var(--border-radius);
-      font-size: 16px;
-      font-family: 'Outfit', sans-serif;
     }
     .form-actions {
       display: grid;
@@ -569,118 +565,6 @@
       text-align: right;
       margin-top: 20px;
       display: none; /* Initially hidden, shown after calculation */
-    }
-    
-    .proposal-actions button {
-      margin-left: 10px;
-    }
-
-    /* Share Proposal Modal */
-    .share-proposal-modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      overflow: auto;
-    }
-
-    .share-proposal-content {
-      background-color: var(--white);
-      margin: 5% auto;
-      padding: 30px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      width: 90%;
-      max-width: 500px;
-      position: relative;
-    }
-
-    .share-proposal-content h2 {
-      color: var(--secondary-color);
-      margin-bottom: 20px;
-      font-size: 24px;
-    }
-
-    .share-info {
-      background-color: var(--light-gray);
-      padding: 20px;
-      border-radius: var(--border-radius);
-      margin-bottom: 20px;
-    }
-
-    .share-info-item {
-      margin-bottom: 15px;
-    }
-
-    .share-info-item:last-child {
-      margin-bottom: 0;
-    }
-
-    .share-info-label {
-      display: block;
-      font-weight: 600;
-      color: var(--secondary-color);
-      margin-bottom: 5px;
-    }
-
-    .share-info-value {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .share-info-value input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid var(--medium-gray);
-      border-radius: var(--border-radius);
-      font-family: 'Outfit', sans-serif;
-      font-size: 14px;
-    }
-
-    .copy-btn {
-      background-color: var(--accent-color-2);
-      color: var(--secondary-color);
-      border: none;
-      padding: 8px 12px;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      font-family: 'Outfit', sans-serif;
-      font-weight: 600;
-      font-size: 14px;
-      transition: var(--transition);
-    }
-
-    .copy-btn:hover {
-      background-color: #8ee6e6;
-      transform: translateY(-2px);
-    }
-
-    .share-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .copied-tooltip {
-      position: absolute;
-      background-color: var(--secondary-color);
-      color: var(--white);
-      padding: 5px 10px;
-      border-radius: var(--border-radius);
-      font-size: 12px;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .copied-tooltip.show {
-      opacity: 1;
     }
     
     /* Modal styles */
@@ -1082,93 +966,112 @@
       display: none;
     }
 
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
+    /* Share Proposal Modal Styles */
+    .share-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
     }
 
-    .modal-content {
-        position: relative;
-        background-color: #fff;
-        margin: 15% auto;
-        padding: 20px;
-        border-radius: 8px;
-        width: 90%;
-        max-width: 500px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    .share-modal.active {
+      display: flex;
     }
 
-    .modal h2 {
-        margin-top: 0;
-        color: #333;
+    .share-modal-content {
+      background-color: var(--white);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+      box-shadow: var(--shadow);
     }
 
-    .input-group {
-        margin-bottom: 15px;
+    .share-modal-content h3 {
+      color: var(--secondary-color);
+      margin-bottom: 20px;
+      font-weight: 600;
     }
 
-    .input-group label {
-        display: block;
-        margin-bottom: 5px;
-        color: #666;
+    .share-input-group {
+      margin-bottom: 20px;
     }
 
-    .copy-input {
-        display: flex;
-        gap: 8px;
+    .share-input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--secondary-color);
     }
 
-    .copy-input input {
-        flex: 1;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
+    .share-input-container {
+      display: flex;
+      gap: 10px;
+    }
+
+    .share-input-container input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid var(--medium-gray);
+      border-radius: var(--border-radius);
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--light-gray);
+      color: var(--dark-gray);
+      font-size: 14px;
+    }
+
+    .share-input-container input:read-only {
+      cursor: default;
     }
 
     .copy-btn {
-        padding: 8px 16px;
-        background-color: #f0f0f0;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        cursor: pointer;
+      padding: 8px 16px;
+      background-color: var(--accent-color-2);
+      color: var(--secondary-color);
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 500;
+      transition: var(--transition);
     }
 
     .copy-btn:hover {
-        background-color: #e0e0e0;
+      background-color: #8ee6e6;
+      transform: translateY(-2px);
     }
 
-    .note {
-        color: #666;
-        font-size: 14px;
-        margin-top: 15px;
+    .share-modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: var(--dark-gray);
+      cursor: pointer;
+      transition: var(--transition);
     }
 
-    .modal-footer {
-        margin-top: 20px;
-        text-align: right;
+    .share-modal-close:hover {
+      color: var(--primary-color);
+      transform: rotate(90deg);
     }
 
-    .action-buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-    }
-
-    .secondary-button {
-        background-color: #f0f0f0;
-        color: #333;
-        border: 1px solid #ddd;
-    }
-
-    .secondary-button:hover {
-        background-color: #e0e0e0;
+    .share-note {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: var(--light-gray);
+      border-radius: var(--border-radius);
+      font-size: 14px;
+      color: var(--secondary-color);
     }
   </style>
 </head>
@@ -1336,7 +1239,6 @@
             </div>
             
             <div class="proposal-actions">
-              <button id="share-proposal-btn" class="btn btn-secondary">Share Proposal</button>
               <button id="generate-proposal-btn" class="btn btn-primary">Generate Client Proposal</button>
             </div>
           </div>
@@ -1638,185 +1540,7 @@
     </div>
   </div>
 
-  <!-- Share Proposal Modal -->
-  <div id="share-proposal-modal" class="share-modal">
-    <div class="share-modal-content">
-        <h2>Share Proposal</h2>
-        <div class="share-input-group">
-            <label>Proposal Link</label>
-            <div class="share-copy-input">
-                <input type="text" id="proposal-link" readonly>
-                <button id="copy-link-btn" class="share-copy-btn">Copy</button>
-            </div>
-        </div>
-        <div class="share-input-group">
-            <label>Access Code</label>
-            <div class="share-copy-input">
-                <input type="text" id="access-code" readonly>
-                <button id="copy-code-btn" class="share-copy-btn">Copy</button>
-            </div>
-        </div>
-        <p class="share-note">Share both the link and access code with your client</p>
-        <div class="share-modal-footer">
-            <button id="close-share-modal-btn" class="btn btn-neutral">Close</button>
-        </div>
-    </div>
-</div>
-
-<!-- Initialize Share Proposal -->
-<script type="module">
-    import shareProposal from './js/share-proposal.js';
-    shareProposal.init();
-</script>
-
-<!-- Firebase Configuration -->
-<script type="module">
-    import { saveProposal } from './firebase-config.js';
-
-    // Share Proposal Functionality
-    const shareProposalBtn = document.getElementById('share-proposal-btn');
-    const shareMultiProposalBtn = document.getElementById('share-multi-proposal-btn');
-    const shareProposalModal = document.getElementById('share-proposal-modal');
-    const proposalLinkInput = document.getElementById('proposal-link');
-    const accessCodeInput = document.getElementById('access-code');
-    const copyLinkBtn = document.getElementById('copy-link-btn');
-    const copyCodeBtn = document.getElementById('copy-code-btn');
-    const closeShareModalBtn = document.getElementById('close-share-modal-btn');
-
-    // Generate random access code
-    function generateAccessCode() {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let code = '';
-        for (let i = 0; i < 6; i++) {
-            code += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return code;
-    }
-
-    // Get current calculator state
-    function getCurrentCalculatorState() {
-        return {
-            serviceType: document.getElementById('serviceType').value,
-            totalHours: parseFloat(document.getElementById('totalHours').value),
-            appTime: parseFloat(document.getElementById('appTime').value),
-            numPros: parseInt(document.getElementById('numPros').value),
-            proHourly: parseFloat(document.getElementById('proHourly').value),
-            hourlyRate: parseFloat(document.getElementById('hourlyRate').value),
-            discountPercent: parseFloat(document.getElementById('discountPercent').value),
-            eventsPerYear: parseInt(document.getElementById('eventsPerYear').value),
-            results: {
-                totalAppts: document.getElementById('totalAppts').textContent,
-                totalCost: document.getElementById('totalCost').textContent,
-                totalProRev: document.getElementById('totalProRev').textContent,
-                shortcutNet: document.getElementById('shortcutNet').textContent,
-                shortcutMargin: document.getElementById('shortcutMargin').textContent,
-                totalAnnual: document.getElementById('totalAnnual').textContent
-            }
-        };
-    }
-
-    // Get current multi-day calculator state
-    function getCurrentMultiDayState() {
-        const days = Array.from(document.querySelectorAll('.day-config')).map(day => {
-            const dayId = day.dataset.dayId;
-            return {
-                location: document.getElementById(`location-${dayId}`).value,
-                serviceType: document.getElementById(`serviceType-${dayId}`).value,
-                totalHours: parseFloat(document.getElementById(`totalHours-${dayId}`).value),
-                appTime: parseFloat(document.getElementById(`appTime-${dayId}`).value),
-                numPros: parseInt(document.getElementById(`numPros-${dayId}`).value),
-                proHourly: parseFloat(document.getElementById(`proHourly-${dayId}`).value),
-                hourlyRate: parseFloat(document.getElementById(`hourlyRate-${dayId}`).value),
-                discountPercent: parseFloat(document.getElementById(`discountPercent-${dayId}`).value)
-            };
-        });
-
-        return {
-            clientName: document.getElementById('multiDayClientName').value,
-            days: days,
-            results: {
-                totalHours: document.getElementById('multi-totalHoursResult').textContent,
-                totalAppts: document.getElementById('multi-totalAppts').textContent,
-                totalCost: document.getElementById('multi-totalCost').textContent,
-                totalProRev: document.getElementById('multi-totalProRev').textContent,
-                shortcutNet: document.getElementById('multi-shortcutNet').textContent,
-                shortcutMargin: document.getElementById('multi-shortcutMargin').textContent,
-                totalAnnual: document.getElementById('multi-totalAnnual').textContent
-            }
-        };
-    }
-
-    // Generate shareable proposal
-    async function generateShareableProposal(isMultiDay = false) {
-        try {
-            const accessCode = generateAccessCode();
-            const state = isMultiDay ? getCurrentMultiDayState() : getCurrentCalculatorState();
-            
-            const proposalData = {
-                type: isMultiDay ? 'multi-day' : 'single',
-                accessCode,
-                state,
-                editableFields: ['totalHours', 'numPros', 'eventsPerYear']
-            };
-
-            const proposalId = await saveProposal(proposalData);
-            
-            // Generate shareable URL
-            const baseUrl = window.location.origin + window.location.pathname;
-            const proposalUrl = `${baseUrl}?proposal=${proposalId}`;
-
-            // Update modal inputs
-            proposalLinkInput.value = proposalUrl;
-            accessCodeInput.value = accessCode;
-
-            // Show the modal
-            shareProposalModal.style.display = 'block';
-        } catch (error) {
-            console.error('Error generating proposal:', error);
-            alert('Failed to generate proposal. Please try again.');
-        }
-    }
-
-    // Copy text to clipboard
-    async function copyToClipboard(text, button) {
-        try {
-            await navigator.clipboard.writeText(text);
-            const originalText = button.textContent;
-            button.textContent = 'Copied!';
-            setTimeout(() => {
-                button.textContent = originalText;
-            }, 2000);
-        } catch (err) {
-            console.error('Failed to copy text:', err);
-            alert('Failed to copy text. Please try again.');
-        }
-    }
-
-    // Event Listeners
-    shareProposalBtn?.addEventListener('click', () => generateShareableProposal(false));
-    shareMultiProposalBtn?.addEventListener('click', () => generateShareableProposal(true));
-
-    copyLinkBtn.addEventListener('click', () => {
-        copyToClipboard(proposalLinkInput.value, copyLinkBtn);
-    });
-
-    copyCodeBtn.addEventListener('click', () => {
-        copyToClipboard(accessCodeInput.value, copyCodeBtn);
-    });
-
-    closeShareModalBtn.addEventListener('click', () => {
-        shareProposalModal.style.display = 'none';
-    });
-
-    // Close modal when clicking outside
-    window.addEventListener('click', (event) => {
-        if (event.target === shareProposalModal) {
-            shareProposalModal.style.display = 'none';
-        }
-    });
-</script>
-
-<script>
+  <script>
     // Password protection
     const correctPassword = 'LouieJack1!';
     const passwordScreen = document.getElementById('password-screen');
@@ -3075,152 +2799,124 @@
       });
     }
 
-    // Add after existing variable declarations
-    const shareProposalBtn = document.getElementById('share-proposal-btn');
-    const shareProposalModal = document.getElementById('share-proposal-modal');
+    // Share Proposal Modal Functionality
+    const shareModal = document.getElementById('share-proposal-modal');
+    const shareBtn = document.getElementById('share-proposal-btn');
+    const closeBtn = document.querySelector('.share-modal-close');
     const proposalLinkInput = document.getElementById('proposal-link');
-    const proposalPasswordInput = document.getElementById('proposal-password');
-    const copyAllBtn = document.getElementById('copy-all-btn');
-    const closeShareModalBtn = document.getElementById('close-share-modal-btn');
-    const copyButtons = document.querySelectorAll('.copy-btn');
-    
-    // Generate random password
-    function generateRandomPassword() {
+    const accessCodeInput = document.getElementById('access-code');
+    const copyBtns = document.querySelectorAll('.copy-btn');
+
+    function generateAccessCode() {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let password = '';
+      let code = '';
       for (let i = 0; i < 6; i++) {
-        password += chars.charAt(Math.floor(Math.random() * chars.length));
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
       }
-      return password;
+      return code;
     }
-    
-    // Generate unique ID
-    function generateUniqueId() {
-      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+    function generateProposalId() {
+      return 'prop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
-    
-    // Get current calculator state
-    function getCurrentCalculatorState() {
-      const state = {
-        serviceType: serviceTypeSelect.value,
-        totalHours: parseFloat(totalHoursInput.value),
-        appTime: parseFloat(appTimeInput.value),
-        numPros: parseInt(numProsInput.value),
-        proHourly: parseFloat(proHourlyInput.value),
-        hourlyRate: parseFloat(hourlyRateInput.value),
-        discountPercent: parseFloat(discountPercentInput.value),
-        eventsPerYear: parseInt(eventsPerYearInput.value)
-      };
-      
-      if (state.serviceType === 'headshot') {
-        state.retouchingCost = parseFloat(retouchingCostInput.value);
-      }
-      
-      return state;
-    }
-    
-    // Generate shareable proposal
-    function generateShareableProposal() {
-      // Generate random password
-      const accessCode = generateRandomPassword();
-      
-      // Get current calculator state
-      const proposalData = {
-        clientInfo: {
-          name: document.getElementById('clientName').value
-        },
-        calculatorState: getCurrentCalculatorState(),
-        editableFields: ['totalHours', 'numPros', 'eventsPerYear'],
+
+    function getCurrentState() {
+      return {
+        eventDuration: document.getElementById('event-duration').value,
+        numProfessionals: document.getElementById('num-professionals').value,
+        eventsPerYear: document.getElementById('events-per-year').value,
         results: {
-          totalAppts: parseInt(totalAppointmentsInput.value),
-          totalCost: parseFloat(totalCost.textContent.replace('$', '').replace(',', '')),
-          totalProRev: parseFloat(totalProRev.textContent.replace('$', '').replace(',', '')),
-          shortcutNet: parseFloat(shortcutNet.textContent.replace('$', '').replace(',', '')),
-          shortcutMargin: parseFloat(shortcutMargin.textContent.replace('%', '')),
-          totalAnnual: parseFloat(totalAnnual.textContent.replace('$', '').replace(',', ''))
+          // Add any calculated results you want to preserve
         }
       };
+    }
+
+    function generateShareableProposal() {
+      const proposalId = generateProposalId();
+      const accessCode = generateAccessCode();
+      const state = getCurrentState();
       
-      // Encode data
+      // In a production environment, this would be stored in Firebase
+      // For now, we'll encode it in the URL
+      const proposalData = {
+        id: proposalId,
+        accessCode: accessCode,
+        state: state,
+        createdAt: new Date().toISOString()
+      };
+
       const encodedData = btoa(JSON.stringify(proposalData));
+      const proposalUrl = `${window.location.origin}/proposal.html#${encodedData}`;
       
-      // Generate unique ID
-      const proposalId = generateUniqueId();
-      
-      // Construct URL
-      const shareableUrl = `${window.location.origin}/proposal/${proposalId}#${encodedData}`;
-      
-      // Show sharing modal with generated info
-      proposalLinkInput.value = shareableUrl;
-      proposalPasswordInput.value = accessCode;
-      shareProposalModal.style.display = 'block';
+      proposalLinkInput.value = proposalUrl;
+      accessCodeInput.value = accessCode;
     }
-    
-    // Copy text to clipboard
-    async function copyToClipboard(text) {
-      try {
-        await navigator.clipboard.writeText(text);
-        return true;
-      } catch (err) {
-        console.error('Failed to copy text: ', err);
-        return false;
-      }
-    }
-    
-    // Show copied tooltip
-    function showCopiedTooltip(element) {
-      const tooltip = document.createElement('div');
-      tooltip.className = 'copied-tooltip';
-      tooltip.textContent = 'Copied!';
-      
-      // Position tooltip near the element
-      const rect = element.getBoundingClientRect();
-      tooltip.style.position = 'absolute';
-      tooltip.style.top = `${rect.top - 30}px`;
-      tooltip.style.left = `${rect.left + (rect.width / 2) - 30}px`;
-      
-      document.body.appendChild(tooltip);
-      setTimeout(() => tooltip.classList.add('show'), 10);
-      
-      // Remove tooltip after animation
-      setTimeout(() => {
-        tooltip.classList.remove('show');
-        setTimeout(() => tooltip.remove(), 300);
-      }, 1500);
-    }
-    
-    // Event Listeners
-    shareProposalBtn.addEventListener('click', generateShareableProposal);
-    
-    closeShareModalBtn.addEventListener('click', () => {
-      shareProposalModal.style.display = 'none';
-    });
-    
-    copyButtons.forEach(button => {
-      button.addEventListener('click', async () => {
-        const type = button.getAttribute('data-copy');
-        const text = type === 'link' ? proposalLinkInput.value : proposalPasswordInput.value;
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Show success message
+        const tooltip = document.createElement('div');
+        tooltip.className = 'copy-tooltip';
+        tooltip.textContent = 'Copied!';
+        document.body.appendChild(tooltip);
         
-        if (await copyToClipboard(text)) {
-          showCopiedTooltip(button);
-        }
+        setTimeout(() => {
+          document.body.removeChild(tooltip);
+        }, 2000);
+      });
+    }
+
+    // Event Listeners
+    shareBtn.addEventListener('click', () => {
+      shareModal.style.display = 'flex';
+      generateShareableProposal();
+    });
+
+    closeBtn.addEventListener('click', () => {
+      shareModal.style.display = 'none';
+    });
+
+    copyBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const inputId = btn.getAttribute('data-copy');
+        const inputElement = document.getElementById(inputId);
+        copyToClipboard(inputElement.value);
       });
     });
-    
-    copyAllBtn.addEventListener('click', async () => {
-      const text = `Proposal Link: ${proposalLinkInput.value}\nAccess Code: ${proposalPasswordInput.value}`;
-      
-      if (await copyToClipboard(text)) {
-        showCopiedTooltip(copyAllBtn);
-      }
-    });
-    
-    // Close modal when clicking outside
+
     window.addEventListener('click', (e) => {
-      if (e.target === shareProposalModal) {
-        shareProposalModal.style.display = 'none';
+      if (e.target === shareModal) {
+        shareModal.style.display = 'none';
       }
     });
   </script>
+  
+  <!-- Share Proposal Modal -->
+  <div id="share-proposal-modal" class="share-modal">
+    <div class="share-modal-content">
+      <button class="share-modal-close">&times;</button>
+      <h3>Share Proposal</h3>
+      
+      <div class="share-input-group">
+        <label for="proposal-link">Proposal Link</label>
+        <div class="share-input-container">
+          <input type="text" id="proposal-link" readonly>
+          <button class="copy-btn" data-copy="proposal-link">Copy</button>
+        </div>
+      </div>
+      
+      <div class="share-input-group">
+        <label for="access-code">Access Code</label>
+        <div class="share-input-container">
+          <input type="text" id="access-code" readonly>
+          <button class="copy-btn" data-copy="access-code">Copy</button>
+        </div>
+      </div>
+      
+      <div class="share-note">
+        <strong>Note:</strong> Please share both the proposal link and access code with your client. They will need both to view the proposal.
+      </div>
+    </div>
+  </div>
 </body>
 </html>
