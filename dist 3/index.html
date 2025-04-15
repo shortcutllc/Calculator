@@ -1683,7 +1683,7 @@
       // Calculate appointments per hour
       const apptsPerHourPerPro = 60 / appTime;
       const totalApptsPerHour = apptsPerHourPerPro * numPros;
-      const totalAppts = Math.floor(totalHours * totalApptsPerHour);
+      const totalApptsValue = Math.floor(totalHours * totalApptsPerHour);
       
       // Calculate costs
       let totalCostValue = 0;
@@ -1692,7 +1692,7 @@
       if (serviceType === 'headshot') {
         const retouchingCost = parseFloat(retouchingCostInput.value);
         totalProRevValue = totalHours * numPros * proHourly;
-        totalCostValue = totalProRevValue + (totalAppts * retouchingCost);
+        totalCostValue = totalProRevValue + (totalApptsValue * retouchingCost);
       } else {
         const hourlyRate = parseFloat(hourlyRateInput.value);
         const earlyArrival = parseFloat(earlyArrivalInput.value);
@@ -1714,7 +1714,7 @@
       totalHoursResult.textContent = `${totalHours} hours`;
       apptsPerProPerHour.textContent = `${Math.round(apptsPerHourPerPro)}`;
       apptsPerHour.textContent = `${Math.round(totalApptsPerHour)}`;
-      totalAppts.textContent = `${totalAppts}`;
+      totalAppts.textContent = `${totalApptsValue}`;
       totalCost.textContent = `$${totalCostValue.toFixed(2)}`;
       totalProRev.textContent = `$${totalProRevValue.toFixed(2)}`;
       shortcutNet.textContent = `$${shortcutNetValue.toFixed(2)}`;
@@ -1729,7 +1729,7 @@
         totalHours,
         appTime,
         numPros,
-        totalAppts,
+        totalAppts: totalApptsValue,
         totalCost: totalCostValue,
         totalProRev: totalProRevValue,
         shortcutNet: shortcutNetValue,
