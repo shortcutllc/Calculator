@@ -1639,34 +1639,184 @@
   </div>
 
   <!-- Share Proposal Modal -->
-  <div id="share-proposal-modal" class="share-proposal-modal">
-    <div class="share-proposal-content">
-      <span class="close-modal">&times;</span>
-      <h2>Share Proposal</h2>
-      <div class="share-info">
-        <div class="share-info-item">
-          <span class="share-info-label">Shareable Link</span>
-          <div class="share-info-value">
-            <input type="text" id="proposal-link" readonly>
-            <button class="copy-btn" data-copy="link">Copy Link</button>
-          </div>
+  <div id="share-proposal-modal" class="share-modal">
+    <div class="share-modal-content">
+        <h2>Share Proposal</h2>
+        <div class="share-input-group">
+            <label>Proposal Link</label>
+            <div class="share-copy-input">
+                <input type="text" id="proposal-link" readonly>
+                <button id="copy-link-btn" class="share-copy-btn">Copy</button>
+            </div>
         </div>
-        <div class="share-info-item">
-          <span class="share-info-label">Access Code</span>
-          <div class="share-info-value">
-            <input type="text" id="proposal-password" readonly>
-            <button class="copy-btn" data-copy="password">Copy Code</button>
-          </div>
+        <div class="share-input-group">
+            <label>Access Code</label>
+            <div class="share-copy-input">
+                <input type="text" id="access-code" readonly>
+                <button id="copy-code-btn" class="share-copy-btn">Copy</button>
+            </div>
         </div>
-      </div>
-      <div class="share-actions">
-        <button class="btn btn-secondary" id="copy-all-btn">Copy Both</button>
-        <button class="btn btn-neutral" id="close-share-modal-btn">Close</button>
-      </div>
+        <p class="share-note">Share both the link and access code with your client</p>
+        <div class="share-modal-footer">
+            <button id="close-share-modal-btn" class="btn btn-neutral">Close</button>
+        </div>
     </div>
-  </div>
+</div>
 
-  <script>
+<!-- Initialize Share Proposal -->
+<script type="module">
+    import shareProposal from './js/share-proposal.js';
+    shareProposal.init();
+</script>
+
+<!-- Firebase Configuration -->
+<script type="module">
+    import { saveProposal } from './firebase-config.js';
+
+    // Share Proposal Functionality
+    const shareProposalBtn = document.getElementById('share-proposal-btn');
+    const shareMultiProposalBtn = document.getElementById('share-multi-proposal-btn');
+    const shareProposalModal = document.getElementById('share-proposal-modal');
+    const proposalLinkInput = document.getElementById('proposal-link');
+    const accessCodeInput = document.getElementById('access-code');
+    const copyLinkBtn = document.getElementById('copy-link-btn');
+    const copyCodeBtn = document.getElementById('copy-code-btn');
+    const closeShareModalBtn = document.getElementById('close-share-modal-btn');
+
+    // Generate random access code
+    function generateAccessCode() {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code = '';
+        for (let i = 0; i < 6; i++) {
+            code += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return code;
+    }
+
+    // Get current calculator state
+    function getCurrentCalculatorState() {
+        return {
+            serviceType: document.getElementById('serviceType').value,
+            totalHours: parseFloat(document.getElementById('totalHours').value),
+            appTime: parseFloat(document.getElementById('appTime').value),
+            numPros: parseInt(document.getElementById('numPros').value),
+            proHourly: parseFloat(document.getElementById('proHourly').value),
+            hourlyRate: parseFloat(document.getElementById('hourlyRate').value),
+            discountPercent: parseFloat(document.getElementById('discountPercent').value),
+            eventsPerYear: parseInt(document.getElementById('eventsPerYear').value),
+            results: {
+                totalAppts: document.getElementById('totalAppts').textContent,
+                totalCost: document.getElementById('totalCost').textContent,
+                totalProRev: document.getElementById('totalProRev').textContent,
+                shortcutNet: document.getElementById('shortcutNet').textContent,
+                shortcutMargin: document.getElementById('shortcutMargin').textContent,
+                totalAnnual: document.getElementById('totalAnnual').textContent
+            }
+        };
+    }
+
+    // Get current multi-day calculator state
+    function getCurrentMultiDayState() {
+        const days = Array.from(document.querySelectorAll('.day-config')).map(day => {
+            const dayId = day.dataset.dayId;
+            return {
+                location: document.getElementById(`location-${dayId}`).value,
+                serviceType: document.getElementById(`serviceType-${dayId}`).value,
+                totalHours: parseFloat(document.getElementById(`totalHours-${dayId}`).value),
+                appTime: parseFloat(document.getElementById(`appTime-${dayId}`).value),
+                numPros: parseInt(document.getElementById(`numPros-${dayId}`).value),
+                proHourly: parseFloat(document.getElementById(`proHourly-${dayId}`).value),
+                hourlyRate: parseFloat(document.getElementById(`hourlyRate-${dayId}`).value),
+                discountPercent: parseFloat(document.getElementById(`discountPercent-${dayId}`).value)
+            };
+        });
+
+        return {
+            clientName: document.getElementById('multiDayClientName').value,
+            days: days,
+            results: {
+                totalHours: document.getElementById('multi-totalHoursResult').textContent,
+                totalAppts: document.getElementById('multi-totalAppts').textContent,
+                totalCost: document.getElementById('multi-totalCost').textContent,
+                totalProRev: document.getElementById('multi-totalProRev').textContent,
+                shortcutNet: document.getElementById('multi-shortcutNet').textContent,
+                shortcutMargin: document.getElementById('multi-shortcutMargin').textContent,
+                totalAnnual: document.getElementById('multi-totalAnnual').textContent
+            }
+        };
+    }
+
+    // Generate shareable proposal
+    async function generateShareableProposal(isMultiDay = false) {
+        try {
+            const accessCode = generateAccessCode();
+            const state = isMultiDay ? getCurrentMultiDayState() : getCurrentCalculatorState();
+            
+            const proposalData = {
+                type: isMultiDay ? 'multi-day' : 'single',
+                accessCode,
+                state,
+                editableFields: ['totalHours', 'numPros', 'eventsPerYear']
+            };
+
+            const proposalId = await saveProposal(proposalData);
+            
+            // Generate shareable URL
+            const baseUrl = window.location.origin + window.location.pathname;
+            const proposalUrl = `${baseUrl}?proposal=${proposalId}`;
+
+            // Update modal inputs
+            proposalLinkInput.value = proposalUrl;
+            accessCodeInput.value = accessCode;
+
+            // Show the modal
+            shareProposalModal.style.display = 'block';
+        } catch (error) {
+            console.error('Error generating proposal:', error);
+            alert('Failed to generate proposal. Please try again.');
+        }
+    }
+
+    // Copy text to clipboard
+    async function copyToClipboard(text, button) {
+        try {
+            await navigator.clipboard.writeText(text);
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy text:', err);
+            alert('Failed to copy text. Please try again.');
+        }
+    }
+
+    // Event Listeners
+    shareProposalBtn?.addEventListener('click', () => generateShareableProposal(false));
+    shareMultiProposalBtn?.addEventListener('click', () => generateShareableProposal(true));
+
+    copyLinkBtn.addEventListener('click', () => {
+        copyToClipboard(proposalLinkInput.value, copyLinkBtn);
+    });
+
+    copyCodeBtn.addEventListener('click', () => {
+        copyToClipboard(accessCodeInput.value, copyCodeBtn);
+    });
+
+    closeShareModalBtn.addEventListener('click', () => {
+        shareProposalModal.style.display = 'none';
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (event) => {
+        if (event.target === shareProposalModal) {
+            shareProposalModal.style.display = 'none';
+        }
+    });
+</script>
+
+<script>
     // Password protection
     const correctPassword = 'LouieJack1!';
     const passwordScreen = document.getElementById('password-screen');
