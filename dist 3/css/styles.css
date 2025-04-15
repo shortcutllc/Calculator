@@ -115,4 +115,66 @@
 
 #password-form button:hover {
     background-color: #0056b3;
+}
+
+.proposal-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.client-logo {
+    max-width: 200px;
+    max-height: 100px;
+    margin: 0 auto 1.5rem;
+    display: block;
+}
+
+.history-container {
+    margin-top: 2rem;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    background-color: #fff;
+    transition: transform 0.2s ease;
+}
+
+.history-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.history-content {
+    flex: 1;
+}
+
+.history-content h4 {
+    margin: 0 0 0.5rem;
+    color: #333;
+}
+
+.history-content p {
+    margin: 0;
+    color: #666;
+}
+
+.history-date {
+    font-size: 0.875rem;
+    color: #999;
+    margin-top: 0.25rem;
+}
+
+.no-history {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 2rem;
 } 
