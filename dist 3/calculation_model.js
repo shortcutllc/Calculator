@@ -247,7 +247,7 @@ class PricingCalculator {
                     totalHours: 5,
                     appTime: 20,
                     proHourly: 50,
-                    hourlyRate: 120,
+                    hourlyRate: 135,
                     earlyArrival: 100
                 },
                 {
@@ -258,7 +258,7 @@ class PricingCalculator {
                     totalHours: 5,
                     appTime: 20,
                     proHourly: 50,
-                    hourlyRate: 120,
+                    hourlyRate: 135,
                     earlyArrival: 200
                 },
                 {
@@ -269,7 +269,7 @@ class PricingCalculator {
                     totalHours: 7,
                     appTime: 20,
                     proHourly: 50,
-                    hourlyRate: 120,
+                    hourlyRate: 135,
                     earlyArrival: 300
                 }
             ],

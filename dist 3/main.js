@@ -15,9 +15,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set default hourly rate for massage and hair/nails services
     const serviceTypeSelect = document.getElementById('serviceType');
     if (serviceTypeSelect) {
-        const serviceType = serviceTypeSelect.value;
+        serviceTypeSelect.addEventListener('change', function() {
+            const serviceType = this.value;
+            const hourlyRateInput = document.getElementById('hourlyRate');
+            if (hourlyRateInput && (serviceType === 'massage/spa' || serviceType === 'hair/nails')) {
+                hourlyRateInput.value = '135';
+            }
+        });
+        
+        // Also set initial value when page loads
+        const initialServiceType = serviceTypeSelect.value;
         const hourlyRateInput = document.getElementById('hourlyRate');
-        if ((serviceType === 'massage/spa' || serviceType === 'hair/nails') && hourlyRateInput) {
+        if (hourlyRateInput && (initialServiceType === 'massage/spa' || initialServiceType === 'hair/nails')) {
             hourlyRateInput.value = '135';
         }
     }
