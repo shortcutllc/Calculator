@@ -1,0 +1,26 @@
+{
+  "name": "calculator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "live-server \"dist 3\"",
+    "build": "mkdir -p public && cp -r \"dist 3\"/* public/ && cp -r assets public/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shortcutllc/Calculator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shortcutllc/Calculator/issues"
+  },
+  "homepage": "https://github.com/shortcutllc/Calculator#readme",
+  "description": "",
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "live-server": "^1.2.2"
+  }
+}
