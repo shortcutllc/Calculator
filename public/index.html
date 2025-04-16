@@ -1077,6 +1077,12 @@
       font-size: 16px;
       font-family: 'Outfit', sans-serif;
     }
+
+    .password-container input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(255, 80, 80, 0.2);
+    }
     
     .password-error {
       color: var(--primary-color);
@@ -1084,93 +1090,106 @@
       display: none;
     }
 
+    .password-container .btn {
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 18px;
+      transition: var(--transition);
+    }
+
+    .password-container .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Modal Styles */
     .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
     }
 
     .modal-content {
-        position: relative;
-        background-color: #fff;
-        margin: 15% auto;
-        padding: 20px;
-        border-radius: 8px;
-        width: 90%;
-        max-width: 500px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: relative;
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     .modal h2 {
-        margin-top: 0;
-        color: #333;
+      margin-top: 0;
+      color: #333;
     }
 
     .input-group {
-        margin-bottom: 15px;
+      margin-bottom: 15px;
     }
 
     .input-group label {
-        display: block;
-        margin-bottom: 5px;
-        color: #666;
+      display: block;
+      margin-bottom: 5px;
+      color: #666;
     }
 
     .copy-input {
-        display: flex;
-        gap: 8px;
+      display: flex;
+      gap: 8px;
     }
 
     .copy-input input {
-        flex: 1;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
     }
 
     .copy-btn {
-        padding: 8px 16px;
-        background-color: #f0f0f0;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        cursor: pointer;
+      padding: 8px 16px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
     }
 
     .copy-btn:hover {
-        background-color: #e0e0e0;
+      background-color: #e0e0e0;
     }
 
     .note {
-        color: #666;
-        font-size: 14px;
-        margin-top: 15px;
+      color: #666;
+      font-size: 14px;
+      margin-top: 15px;
     }
 
     .modal-footer {
-        margin-top: 20px;
-        text-align: right;
+      margin-top: 20px;
+      text-align: right;
     }
 
     .action-buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
     }
 
     .secondary-button {
-        background-color: #f0f0f0;
-        color: #333;
-        border: 1px solid #ddd;
+      background-color: #f0f0f0;
+      color: #333;
+      border: 1px solid #ddd;
     }
 
     .secondary-button:hover {
-        background-color: #e0e0e0;
+      background-color: #e0e0e0;
     }
   </style>
 </head>
@@ -1190,7 +1209,7 @@
                        required>
                 <div class="password-error" id="password-error"></div>
             </div>
-            <button type="submit">Enter</button>
+            <button type="submit" class="btn btn-primary">Enter</button>
         </form>
     </div>
   </div>
