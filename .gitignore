@@ -2,7 +2,7 @@
 node_modules/
 
 # Build output
-dist/
+# dist/  # Commented out to allow dist directory for Netlify deployment
 build/
 
 # Environment files
