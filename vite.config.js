@@ -20,15 +20,15 @@ export default defineConfig({
     open: '/calculator.html'
   },
   optimizeDeps: {
-    include: ['firebase/app', 'firebase/firestore']
+    include: ['firebase/app', 'firebase/firestore', 'firebase/analytics', 'uuid']
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
-      '@js': resolve(__dirname, 'src/js'),
-      '@services': resolve(__dirname, 'src/services'),
-      '@css': resolve(__dirname, 'src/css'),
-      '@assets': resolve(__dirname, 'src/assets')
+      '@': resolve(__dirname, './src'),
+      '@js': resolve(__dirname, './src/js'),
+      '@services': resolve(__dirname, './src/services'),
+      '@css': resolve(__dirname, './src/css'),
+      '@assets': resolve(__dirname, './src/assets')
     }
   }
 }); 

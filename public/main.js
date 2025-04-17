@@ -4,6 +4,16 @@
  * Supports multi-day/location events, multiple locations, and history feature
  */
 
+// Import Firebase and proposal service
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import { firebaseConfig } from './js/firebase-config.js';
+import { ProposalService } from './js/proposal-service.js';
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 // Initialize the calculator
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize the calculator model
@@ -397,6 +407,99 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Highlight results section
         document.querySelector('.results-section').classList.add('active');
+
+        // Add Share Proposal button to results section
+        const resultsSection = document.querySelector('.results-section');
+        const shareProposalBtn = document.createElement('button');
+        shareProposalBtn.id = 'share-proposal-btn';
+        shareProposalBtn.className = 'btn btn-primary';
+        shareProposalBtn.textContent = 'Share Proposal';
+        resultsSection.appendChild(shareProposalBtn);
+
+        // Add proposal result display
+        const proposalResult = document.createElement('div');
+        proposalResult.id = 'proposal-result';
+        proposalResult.className = 'proposal-result';
+        proposalResult.style.display = 'none';
+        proposalResult.innerHTML = `
+            <h3>Proposal Created!</h3>
+            <p>Access Code: <span id="access-code"></span></p>
+            <p>Share this link with your client:</p>
+            <div class="proposal-link-container">
+                <input type="text" id="proposal-link" readonly>
+                <button id="copy-link" class="btn btn-secondary">Copy Link</button>
+            </div>
+        `;
+        resultsSection.appendChild(proposalResult);
+
+        // Share proposal functionality
+        shareProposalBtn.addEventListener('click', async function() {
+            try {
+                // Get client info
+                const clientName = document.querySelector('[name="clientName"]').value;
+                if (!clientName) {
+                    alert('Please enter a client name before sharing the proposal');
+                    return;
+                }
+
+                const clientInfo = {
+                    name: clientName,
+                    email: '', // Optional in the original flow
+                    phone: ''  // Optional in the original flow
+                };
+
+                // Get current calculator state
+                const calculatorState = {
+                    totalHours: parseFloat(document.getElementById('totalHoursResult').textContent),
+                    apptsPerProPerHour: parseFloat(document.getElementById('apptsPerProPerHour').textContent),
+                    totalApptsPerHour: parseFloat(document.getElementById('apptsPerHour').textContent),
+                    totalAppts: parseFloat(document.getElementById('totalAppts').textContent),
+                    totalCost: parseFloat(document.getElementById('totalCost').textContent.replace(/[^0-9.-]+/g,"")),
+                    totalProRev: parseFloat(document.getElementById('totalProRev').textContent.replace(/[^0-9.-]+/g,"")),
+                    shortcutNet: parseFloat(document.getElementById('shortcutNet').textContent.replace(/[^0-9.-]+/g,"")),
+                    shortcutMargin: parseFloat(document.getElementById('shortcutMargin').textContent.replace(/[^0-9%.-]+/g,""))
+                };
+
+                // Create proposal
+                shareProposalBtn.disabled = true;
+                shareProposalBtn.textContent = 'Creating...';
+                
+                const proposal = await ProposalService.createProposal(calculatorState, clientInfo);
+
+                // Show success message with access code
+                document.getElementById('proposal-result').style.display = 'block';
+                document.getElementById('access-code').textContent = proposal.accessCode;
+                
+                // Generate and display proposal link
+                const proposalLink = `${window.location.origin}/proposal.html?id=${proposal.proposalId}`;
+                document.getElementById('proposal-link').value = proposalLink;
+
+                // Scroll to the result
+                document.getElementById('proposal-result').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                console.error('Error creating proposal:', error);
+                alert('Failed to create proposal. Please try again.');
+            } finally {
+                shareProposalBtn.disabled = false;
+                shareProposalBtn.textContent = 'Share Proposal';
+            }
+        });
+
+        // Copy link functionality
+        document.getElementById('copy-link')?.addEventListener('click', async function() {
+            try {
+                const linkInput = document.getElementById('proposal-link');
+                await navigator.clipboard.writeText(linkInput.value);
+                this.textContent = 'Copied!';
+                setTimeout(() => {
+                    this.textContent = 'Copy Link';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy link. Please copy it manually.');
+            }
+        });
     }
     
     // Clear results for single event
@@ -924,73 +1027,63 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Save calculation to history
-    function saveCalculationToHistory() {
+    async function saveCalculationToHistory() {
         const calculationTitle = document.getElementById('calculation-title').value;
         if (!calculationTitle) {
             alert('Please enter a title for this calculation');
             return;
         }
-        
-        // Get current tab
-        const activeTab = document.querySelector('.tab-btn.active');
-        const tabId = activeTab ? activeTab.getAttribute('data-tab') : 'single-event';
-        
-        let calculation = {
-            id: Date.now(),
-            title: calculationTitle,
-            date: new Date().toLocaleString(),
-            type: tabId,
-            isDraft: false
-        };
-        
-        if (tabId === 'single-event') {
-            // Get form values and results for single event
-            const params = getFormValues(calculatorForm);
-            const results = calculator.calculate(params);
+
+        try {
+            // Get current tab
+            const activeTab = document.querySelector('.tab-btn.active');
+            const tabId = activeTab ? activeTab.getAttribute('data-tab') : 'single-event';
             
-            calculation.params = params;
-            calculation.results = results;
-        } else if (tabId === 'multi-day') {
-            // Get all day configurations for multi-day event
-            const dayConfigs = document.querySelectorAll('.day-config');
-            const days = [];
-            
-            // Get client name
-            const clientName = document.getElementById('multiDayClientName').value;
-            calculation.clientName = clientName;
-            
-            // Process each day
-            dayConfigs.forEach(dayConfig => {
-                const dayId = dayConfig.getAttribute('data-day-id');
-                const location = dayConfig.querySelector(`#location-${dayId}`).value;
+            let calculation = {
+                id: Date.now(),
+                title: calculationTitle,
+                date: new Date().toLocaleString(),
+                type: tabId,
+                isDraft: false
+            };
+
+            if (tabId === 'single-event') {
+                // Get form values and results for single event
+                const params = getFormValues(calculatorForm);
+                const results = calculator.calculate(params);
                 
-                // Get form values for this day
-                const dayForm = dayConfig.querySelector('.day-form');
-                const params = getMultiDayFormValues(dayForm, dayId);
-                
-                days.push({
-                    dayId,
-                    location,
-                    params
+                calculation.params = params;
+                calculation.results = results;
+
+                // Create proposal in Firebase
+                const proposal = await ProposalService.createProposal(results, {
+                    name: params.clientName || calculationTitle,
+                    email: '',
+                    phone: ''
                 });
-            });
+
+                // Show proposal link and access code
+                const proposalLink = `${window.location.origin}/proposal.html?id=${proposal.proposalId}`;
+                alert(`Proposal created!\n\nAccess Code: ${proposal.accessCode}\nLink: ${proposalLink}\n\nPlease save these for future reference.`);
+            }
+
+            // Add to history
+            calculationHistory.push(calculation);
             
-            calculation.days = days;
+            // Save to localStorage
+            localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
+            
+            // Reload history
+            loadHistory();
+            
+            // Clear title input
+            document.getElementById('calculation-title').value = '';
+            
+            alert('Calculation saved to history');
+        } catch (error) {
+            console.error('Error saving calculation:', error);
+            alert('Failed to save calculation. Please try again.');
         }
-        
-        // Add to history
-        calculationHistory.push(calculation);
-        
-        // Save to localStorage
-        localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
-        
-        // Reload history
-        loadHistory();
-        
-        // Clear title input
-        document.getElementById('calculation-title').value = '';
-        
-        alert('Calculation saved to history');
     }
     
     // Save single event as draft

@@ -1,8 +1,8 @@
 // Import Firebase configuration and services
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { firebaseConfig } from '@services/firebase.js';
-import { ProposalService } from '@services/proposal.js';
+import { firebaseConfig } from './firebase-config.js';
+import { ProposalService } from './proposal-service.js';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
