@@ -1,0 +1,16 @@
+{
+  "name": "calculator",
+  "version": "1.0.0",
+  "description": "Calculator web application",
+  "main": "public/main.js",
+  "scripts": {
+    "build": "cp -r public/* dist/",
+    "start": "bash start_server.sh"
+  },
+  "dependencies": {
+    "sharp": "^0.32.6"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+} 
