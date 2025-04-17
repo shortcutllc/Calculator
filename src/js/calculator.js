@@ -1,8 +1,8 @@
 // Import Firebase configuration and services
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { firebaseConfig } from './firebase-config.js';
-import { ProposalService } from './proposal-service.js';
+import { firebaseConfig } from '@js/firebase-config.js';
+import { ProposalService } from '@js/proposal-service.js';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -240,4 +240,51 @@ function formatCurrency(amount) {
 }
 
 // Initial calculation
-calculateResults(); 
+calculateResults();
+
+// Share proposal functionality
+async function shareProposal() {
+    // Validate client name
+    if (!clientNameInput.value) {
+        alert('Please enter a client name before sharing the proposal');
+        return;
+    }
+
+    try {
+        const shareButton = document.getElementById('share-proposal');
+        if (shareButton) {
+            shareButton.disabled = true;
+            shareButton.textContent = 'Creating...';
+        }
+
+        // Create proposal in Firebase
+        const proposal = await ProposalService.createProposal(calculatorState, {
+            name: clientNameInput.value,
+            email: '', // Optional email
+            phone: '' // Optional phone
+        });
+
+        // Show proposal link and access code
+        proposalResult.style.display = 'block';
+        accessCodeSpan.textContent = proposal.accessCode;
+        
+        // Generate and display proposal link
+        const proposalLink = `${window.location.origin}/proposal.html?id=${proposal.proposalId}`;
+        proposalLinkInput.value = proposalLink;
+
+        // Scroll to the result
+        proposalResult.scrollIntoView({ behavior: 'smooth' });
+
+    } catch (error) {
+        console.error('Error creating proposal:', error);
+        alert('Failed to create proposal. Please try again.');
+    } finally {
+        if (shareButton) {
+            shareButton.disabled = false;
+            shareButton.textContent = 'Share Proposal';
+        }
+    }
+}
+
+// Add event listener for share proposal button
+document.getElementById('share-proposal')?.addEventListener('click', shareProposal); 
