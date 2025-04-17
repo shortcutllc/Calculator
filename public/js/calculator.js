@@ -1,239 +1,186 @@
-function loadPreset(serviceType, presetSize) {
-    try {
-        const preset = PricingCalculator.getPresetConfiguration(serviceType, presetSize);
-        if (!preset) {
-            console.error(`No preset found for service type ${serviceType} and size ${presetSize}`);
-            return;
-        }
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import { firebaseConfig } from '../firebase-config.js';
+import { ProposalService } from '../proposal-service.js';
 
-        // Update form fields with preset values
-        document.getElementById('total-hours').value = preset.totalHours;
-        document.getElementById('appointment-time').value = preset.appTime;
-        document.getElementById('num-professionals').value = preset.numPros;
-        
-        if (serviceType === 'headshot') {
-            document.getElementById('pro-hourly').value = preset.proHourly;
-            document.getElementById('retouching-cost').value = preset.retouchingCost;
-        } else {
-            document.getElementById('pro-hourly').value = preset.proHourly;
-            document.getElementById('hourly-rate').value = preset.hourlyRate;
-            document.getElementById('early-arrival').value = preset.earlyArrival;
-        }
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const proposalService = new ProposalService(db);
 
-        // Trigger calculation update
-        calculateTotal();
-        
-        // Show success message
-        const messageDiv = document.getElementById('message');
-        messageDiv.textContent = `Loaded ${preset.name} configuration`;
-        messageDiv.style.color = '#28a745';
-        setTimeout(() => messageDiv.textContent = '', 3000);
-    } catch (error) {
-        console.error('Error loading preset:', error);
-        const messageDiv = document.getElementById('message');
-        messageDiv.textContent = 'Error loading preset configuration';
-        messageDiv.style.color = '#dc3545';
-        setTimeout(() => messageDiv.textContent = '', 3000);
-    }
-}
+// Service Rate Constants
+const SERVICE_RATES = {
+    massage: 135,  // Massage & Spa rate
+    hair: 135,     // Hair & Nails rate
+    headshots: 400 // Headshots rate
+};
 
-function populatePresets(serviceType) {
-    try {
-        const presets = PricingCalculator.getPresetsForService(serviceType);
-        const presetContainer = document.getElementById('preset-container');
-        
-        if (!presetContainer) {
-            console.error('Preset container element not found');
-            return;
-        }
-        
-        presetContainer.innerHTML = '';
+// Other Constants
+const APPOINTMENTS_PER_PRO_PER_HOUR = 4;
 
-        if (!presets || Object.keys(presets).length === 0) {
-            const message = document.createElement('p');
-            message.textContent = 'No presets available for this service type';
-            message.className = 'preset-message';
-            presetContainer.appendChild(message);
-            return;
-        }
+// DOM Elements
+const clientNameInput = document.getElementById('client-name');
+const clientEmailInput = document.getElementById('client-email');
+const clientPhoneInput = document.getElementById('client-phone');
+const serviceTypeSelect = document.getElementById('service-type');
+const customRateGroup = document.getElementById('custom-rate-group');
+const customRateInput = document.getElementById('custom-rate');
+const totalHoursInput = document.getElementById('total-hours');
+const numProsInput = document.getElementById('num-pros');
+const calculateButton = document.getElementById('calculate');
+const createProposalButton = document.getElementById('create-proposal');
+const proposalResult = document.getElementById('proposal-result');
+const accessCodeSpan = document.getElementById('access-code');
+const proposalLinkInput = document.getElementById('proposal-link');
+const copyLinkButton = document.getElementById('copy-link');
 
-        Object.entries(presets).forEach(([size, config]) => {
-            try {
-                const presetDiv = document.createElement('div');
-                presetDiv.className = 'preset-option';
-                
-                const button = document.createElement('button');
-                button.className = 'preset-button';
-                button.textContent = config.name;
-                button.onclick = () => loadPreset(serviceType, size);
-                
-                const description = document.createElement('p');
-                description.className = 'preset-description';
-                description.textContent = config.description;
+// Summary Elements
+const summaryTotalHours = document.getElementById('summary-total-hours');
+const summaryRatePerPro = document.getElementById('summary-rate-per-pro');
+const summaryApptsPerPro = document.getElementById('summary-appts-per-pro');
+const summaryTotalApptsPerHour = document.getElementById('summary-total-appts-per-hour');
+const summaryTotalAppts = document.getElementById('summary-total-appts');
+const summaryTotalCost = document.getElementById('summary-total-cost');
 
-                presetDiv.appendChild(button);
-                presetDiv.appendChild(description);
-                presetContainer.appendChild(presetDiv);
-            } catch (error) {
-                console.error(`Error creating preset button for ${size}:`, error);
-            }
-        });
-    } catch (error) {
-        console.error('Error populating presets:', error);
-        const presetContainer = document.getElementById('preset-container');
-        if (presetContainer) {
-            const message = document.createElement('p');
-            message.textContent = 'Error loading presets';
-            message.className = 'preset-message error';
-            presetContainer.innerHTML = '';
-            presetContainer.appendChild(message);
-        }
-    }
-}
+// Calculator State
+let calculatorState = {
+    totalHours: 1,
+    numPros: 1,
+    serviceType: 'massage',
+    ratePerProPerHour: SERVICE_RATES.massage,
+    apptsPerProPerHour: APPOINTMENTS_PER_PRO_PER_HOUR,
+    totalApptsPerHour: APPOINTMENTS_PER_PRO_PER_HOUR,
+    totalAppts: APPOINTMENTS_PER_PRO_PER_HOUR,
+    totalCost: SERVICE_RATES.massage
+};
 
-function showError(message) {
-    const errorElement = document.getElementById('password-error');
-    errorElement.textContent = message;
-    errorElement.classList.add('show');
-    setTimeout(() => errorElement.classList.remove('show'), 3000);
-}
+// Event Listeners
+calculateButton.addEventListener('click', calculateResults);
+createProposalButton.addEventListener('click', createProposal);
+copyLinkButton.addEventListener('click', copyProposalLink);
 
-function checkPassword(event) {
-    event.preventDefault();
-    const password = document.getElementById('password-input').value;
-    const correctPassword = 'shortcut2024'; // This should match your expected password
-
-    if (password === correctPassword) {
-        document.getElementById('password-screen').style.display = 'none';
-        document.querySelector('.container').style.display = 'block';
-        // Save successful login in session storage
-        sessionStorage.setItem('authenticated', 'true');
-    } else {
-        showError('Incorrect password. Please try again.');
-        document.getElementById('password-input').value = '';
-    }
-    return false;
-}
-
-// Check for saved authentication on page load
-window.addEventListener('load', function() {
-    if (sessionStorage.getItem('authenticated') === 'true') {
-        document.getElementById('password-screen').style.display = 'none';
-        document.querySelector('.container').style.display = 'block';
-    }
+// Service type change handler
+serviceTypeSelect.addEventListener('change', () => {
+    const selectedType = serviceTypeSelect.value;
+    customRateGroup.style.display = selectedType === 'custom' ? 'block' : 'none';
+    calculateResults();
 });
 
-function closeShareModal() {
-    document.getElementById('share-modal').style.display = 'none';
-}
+// Custom rate change handler
+customRateInput.addEventListener('input', calculateResults);
 
-function showShareModal() {
-    const modal = document.getElementById('share-modal');
-    modal.style.display = 'flex';
-    
-    // Add click event to close button if not already added
-    const closeBtn = modal.querySelector('.close-button');
-    if (closeBtn) {
-        closeBtn.onclick = closeShareModal;
+// Input validation and auto-calculation
+[totalHoursInput, numProsInput].forEach(input => {
+    input.addEventListener('input', () => {
+        // Ensure minimum value of 1
+        if (input.value < 1) input.value = 1;
+        calculateResults();
+    });
+});
+
+function getCurrentRate() {
+    const serviceType = serviceTypeSelect.value;
+    if (serviceType === 'custom') {
+        return parseFloat(customRateInput.value) || SERVICE_RATES.massage;
     }
-    
-    // Close modal when clicking outside
-    modal.onclick = function(event) {
-        if (event.target === modal) {
-            closeShareModal();
-        }
-    };
+    return SERVICE_RATES[serviceType];
 }
 
-function saveDraft() {
-    const formData = {
-        serviceType: document.getElementById('service-type').value,
-        totalHours: document.getElementById('total-hours').value,
-        appTime: document.getElementById('appointment-time').value,
-        numPros: document.getElementById('num-professionals').value,
-        proHourly: document.getElementById('pro-hourly').value,
-        hourlyRate: document.getElementById('hourly-rate').value,
-        earlyArrival: document.getElementById('early-arrival').value,
-        retouchingCost: document.getElementById('retouching-cost').value,
-        clientName: document.getElementById('client-name').value,
-        timestamp: new Date().toISOString()
+function calculateResults() {
+    const totalHours = parseInt(totalHoursInput.value) || 1;
+    const numPros = parseInt(numProsInput.value) || 1;
+    const ratePerProPerHour = getCurrentRate();
+
+    // Update calculator state
+    calculatorState = {
+        totalHours,
+        numPros,
+        serviceType: serviceTypeSelect.value,
+        ratePerProPerHour,
+        apptsPerProPerHour: APPOINTMENTS_PER_PRO_PER_HOUR,
+        totalApptsPerHour: numPros * APPOINTMENTS_PER_PRO_PER_HOUR,
+        totalAppts: numPros * APPOINTMENTS_PER_PRO_PER_HOUR * totalHours,
+        totalCost: numPros * ratePerProPerHour * totalHours
     };
 
-    // Get existing drafts or initialize empty array
-    let drafts = JSON.parse(localStorage.getItem('calculatorDrafts') || '[]');
-    
-    // Add new draft to beginning of array
-    drafts.unshift(formData);
-    
-    // Keep only last 10 drafts
-    drafts = drafts.slice(0, 10);
-    
-    // Save back to localStorage
-    localStorage.setItem('calculatorDrafts', JSON.stringify(drafts));
-    
-    // Show success message
-    const messageDiv = document.getElementById('message');
-    messageDiv.textContent = 'Draft saved successfully';
-    messageDiv.style.color = '#28a745';
-    setTimeout(() => messageDiv.textContent = '', 3000);
-    
-    // Update history display
-    displayHistory();
+    // Update summary display
+    updateSummary();
 }
 
-function loadDraft(index) {
-    const drafts = JSON.parse(localStorage.getItem('calculatorDrafts') || '[]');
-    const draft = drafts[index];
-    
-    if (!draft) return;
-    
-    // Populate form fields
-    document.getElementById('service-type').value = draft.serviceType;
-    document.getElementById('total-hours').value = draft.totalHours;
-    document.getElementById('appointment-time').value = draft.appTime;
-    document.getElementById('num-professionals').value = draft.numPros;
-    document.getElementById('pro-hourly').value = draft.proHourly;
-    document.getElementById('hourly-rate').value = draft.hourlyRate;
-    document.getElementById('early-arrival').value = draft.earlyArrival;
-    document.getElementById('retouching-cost').value = draft.retouchingCost;
-    document.getElementById('client-name').value = draft.clientName;
-    
-    // Trigger calculation
-    calculateTotal();
+function updateSummary() {
+    summaryTotalHours.textContent = calculatorState.totalHours;
+    summaryRatePerPro.textContent = formatCurrency(calculatorState.ratePerProPerHour);
+    summaryApptsPerPro.textContent = calculatorState.apptsPerProPerHour;
+    summaryTotalApptsPerHour.textContent = calculatorState.totalApptsPerHour;
+    summaryTotalAppts.textContent = calculatorState.totalAppts;
+    summaryTotalCost.textContent = formatCurrency(calculatorState.totalCost);
 }
 
-function displayHistory() {
-    const historyContainer = document.getElementById('history-container');
-    const drafts = JSON.parse(localStorage.getItem('calculatorDrafts') || '[]');
-    
-    if (!historyContainer) return;
-    
-    historyContainer.innerHTML = '';
-    
-    if (drafts.length === 0) {
-        historyContainer.innerHTML = '<p class="no-history">No saved drafts</p>';
+async function createProposal() {
+    // Validate required fields
+    if (!clientNameInput.value || !clientEmailInput.value) {
+        alert('Please fill in all required fields (Client Name and Email)');
         return;
     }
-    
-    drafts.forEach((draft, index) => {
-        const draftElement = document.createElement('div');
-        draftElement.className = 'history-item';
+
+    // Prepare client info
+    const clientInfo = {
+        name: clientNameInput.value,
+        email: clientEmailInput.value,
+        phone: clientPhoneInput.value || ''
+    };
+
+    try {
+        createProposalButton.disabled = true;
+        createProposalButton.textContent = 'Creating...';
+
+        // Create proposal in Firebase
+        const proposal = await proposalService.createProposal({
+            calculatorState,
+            clientInfo,
+            editableFields: ['totalHours', 'numPros']
+        });
+
+        // Show success message with access code
+        proposalResult.style.display = 'block';
+        accessCodeSpan.textContent = proposal.accessCode;
         
-        const date = new Date(draft.timestamp);
-        const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-        
-        draftElement.innerHTML = `
-            <div class="history-content">
-                <h4>${draft.clientName || 'Unnamed Draft'}</h4>
-                <p>${draft.serviceType} - ${draft.numPros} pros, ${draft.totalHours} hours</p>
-                <p class="history-date">${formattedDate}</p>
-            </div>
-            <button onclick="loadDraft(${index})">Load</button>
-        `;
-        
-        historyContainer.appendChild(draftElement);
-    });
+        // Generate and display proposal link
+        const proposalLink = `${window.location.origin}/proposal.html?id=${proposal.id}`;
+        proposalLinkInput.value = proposalLink;
+
+        // Scroll to the result
+        proposalResult.scrollIntoView({ behavior: 'smooth' });
+
+    } catch (error) {
+        console.error('Error creating proposal:', error);
+        alert('Failed to create proposal. Please try again.');
+    } finally {
+        createProposalButton.disabled = false;
+        createProposalButton.textContent = 'Create Proposal';
+    }
 }
 
-// Initialize history display on page load
-window.addEventListener('load', displayHistory); 
+async function copyProposalLink() {
+    try {
+        await navigator.clipboard.writeText(proposalLinkInput.value);
+        const originalText = copyLinkButton.textContent;
+        copyLinkButton.textContent = 'Copied!';
+        setTimeout(() => {
+            copyLinkButton.textContent = originalText;
+        }, 2000);
+    } catch (err) {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy link. Please copy it manually.');
+    }
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    }).format(amount);
+}
+
+// Initial calculation
+calculateResults(); 

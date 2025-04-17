@@ -1,16 +1,24 @@
 {
   "name": "calculator",
   "version": "1.0.0",
-  "description": "Calculator web application",
-  "main": "public/main.js",
+  "description": "Calculator web application with proposal sharing",
+  "main": "src/main.js",
   "scripts": {
-    "build": "cp -r public/* dist/",
-    "start": "bash start_server.sh"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src/**/*.js",
+    "format": "prettier --write src/"
   },
   "dependencies": {
-    "sharp": "^0.32.6"
+    "firebase": "^10.8.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "eslint": "^8.56.0",
+    "firebase-tools": "^14.2.0",
+    "http-server": "^14.1.1",
+    "prettier": "^3.2.5",
+    "vite": "^5.1.0"
   }
-} 
+}

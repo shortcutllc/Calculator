@@ -1,10 +1,12 @@
 // Import Firebase configuration and services
-import { firebaseConfig } from './firebase-config.js';
-import { ProposalService } from './proposal-service.js';
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import { firebaseConfig } from '@services/firebase.js';
+import { ProposalService } from '@services/proposal.js';
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // Service Rate Constants
 const SERVICE_RATES = {
