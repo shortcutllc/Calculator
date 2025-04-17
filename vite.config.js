@@ -3,10 +3,8 @@ import { resolve } from 'path';
 
 export default defineConfig({
   root: 'src',
-  base: '/',
   build: {
     outDir: '../dist',
-    emptyOutDir: true,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'src/index.html'),
@@ -18,9 +16,6 @@ export default defineConfig({
   server: {
     port: 3001,
     open: '/calculator.html'
-  },
-  optimizeDeps: {
-    include: ['firebase/app', 'firebase/firestore', 'firebase/analytics', 'uuid']
   },
   resolve: {
     alias: {

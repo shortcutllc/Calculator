@@ -1,12 +1,12 @@
-// Import Firebase configuration and services
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { firebaseConfig } from '@js/firebase-config.js';
-import { ProposalService } from '@js/proposal-service.js';
+import { firebaseConfig } from '../firebase-config.js';
+import { ProposalService } from '../proposal-service.js';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const proposalService = new ProposalService(db);
 
 // Service Rate Constants
 const SERVICE_RATES = {
@@ -25,9 +25,6 @@ const clientPhoneInput = document.getElementById('client-phone');
 const serviceTypeSelect = document.getElementById('service-type');
 const customRateGroup = document.getElementById('custom-rate-group');
 const customRateInput = document.getElementById('custom-rate');
-const eventTypeSelect = document.getElementById('event-type');
-const singleDayGroup = document.getElementById('single-day-group');
-const multiDayGroup = document.getElementById('multi-day-group');
 const totalHoursInput = document.getElementById('total-hours');
 const numProsInput = document.getElementById('num-pros');
 const calculateButton = document.getElementById('calculate');
@@ -37,12 +34,6 @@ const accessCodeSpan = document.getElementById('access-code');
 const proposalLinkInput = document.getElementById('proposal-link');
 const copyLinkButton = document.getElementById('copy-link');
 
-// Multi-day specific elements
-const numDaysInput = document.getElementById('num-days');
-const hoursPerDayInput = document.getElementById('hours-per-day');
-const locationSelect = document.getElementById('location-type');
-const numLocationsInput = document.getElementById('num-locations');
-
 // Summary Elements
 const summaryTotalHours = document.getElementById('summary-total-hours');
 const summaryRatePerPro = document.getElementById('summary-rate-per-pro');
@@ -50,12 +41,9 @@ const summaryApptsPerPro = document.getElementById('summary-appts-per-pro');
 const summaryTotalApptsPerHour = document.getElementById('summary-total-appts-per-hour');
 const summaryTotalAppts = document.getElementById('summary-total-appts');
 const summaryTotalCost = document.getElementById('summary-total-cost');
-const summaryNumDays = document.getElementById('summary-num-days');
-const summaryNumLocations = document.getElementById('summary-num-locations');
 
 // Calculator State
 let calculatorState = {
-    eventType: 'single', // 'single' or 'multi'
     totalHours: 1,
     numPros: 1,
     serviceType: 'massage',
@@ -63,25 +51,13 @@ let calculatorState = {
     apptsPerProPerHour: APPOINTMENTS_PER_PRO_PER_HOUR,
     totalApptsPerHour: APPOINTMENTS_PER_PRO_PER_HOUR,
     totalAppts: APPOINTMENTS_PER_PRO_PER_HOUR,
-    totalCost: SERVICE_RATES.massage,
-    numDays: 1,
-    hoursPerDay: 1,
-    numLocations: 1,
-    locationType: 'single' // 'single' or 'multiple'
+    totalCost: SERVICE_RATES.massage
 };
 
 // Event Listeners
 calculateButton.addEventListener('click', calculateResults);
 createProposalButton.addEventListener('click', createProposal);
 copyLinkButton.addEventListener('click', copyProposalLink);
-
-// Event type change handler
-eventTypeSelect.addEventListener('change', () => {
-    const selectedType = eventTypeSelect.value;
-    singleDayGroup.style.display = selectedType === 'single' ? 'block' : 'none';
-    multiDayGroup.style.display = selectedType === 'multi' ? 'block' : 'none';
-    calculateResults();
-});
 
 // Service type change handler
 serviceTypeSelect.addEventListener('change', () => {
@@ -90,21 +66,11 @@ serviceTypeSelect.addEventListener('change', () => {
     calculateResults();
 });
 
-// Location type change handler
-locationSelect.addEventListener('change', () => {
-    const selectedType = locationSelect.value;
-    numLocationsInput.disabled = selectedType === 'single';
-    if (selectedType === 'single') {
-        numLocationsInput.value = 1;
-    }
-    calculateResults();
-});
-
 // Custom rate change handler
 customRateInput.addEventListener('input', calculateResults);
 
 // Input validation and auto-calculation
-[totalHoursInput, numProsInput, numDaysInput, hoursPerDayInput, numLocationsInput].forEach(input => {
+[totalHoursInput, numProsInput].forEach(input => {
     input.addEventListener('input', () => {
         // Ensure minimum value of 1
         if (input.value < 1) input.value = 1;
@@ -121,28 +87,12 @@ function getCurrentRate() {
 }
 
 function calculateResults() {
-    const eventType = eventTypeSelect.value;
+    const totalHours = parseInt(totalHoursInput.value) || 1;
     const numPros = parseInt(numProsInput.value) || 1;
     const ratePerProPerHour = getCurrentRate();
-    let totalHours;
-
-    if (eventType === 'single') {
-        totalHours = parseInt(totalHoursInput.value) || 1;
-    } else {
-        const numDays = parseInt(numDaysInput.value) || 1;
-        const hoursPerDay = parseInt(hoursPerDayInput.value) || 1;
-        totalHours = numDays * hoursPerDay;
-    }
-
-    const numLocations = locationSelect.value === 'multiple' ? 
-        (parseInt(numLocationsInput.value) || 1) : 1;
-
-    // Calculate travel cost if multiple locations
-    const travelCost = numLocations > 1 ? (numLocations - 1) * 50 : 0;
 
     // Update calculator state
     calculatorState = {
-        eventType,
         totalHours,
         numPros,
         serviceType: serviceTypeSelect.value,
@@ -150,11 +100,7 @@ function calculateResults() {
         apptsPerProPerHour: APPOINTMENTS_PER_PRO_PER_HOUR,
         totalApptsPerHour: numPros * APPOINTMENTS_PER_PRO_PER_HOUR,
         totalAppts: numPros * APPOINTMENTS_PER_PRO_PER_HOUR * totalHours,
-        totalCost: (numPros * ratePerProPerHour * totalHours) + travelCost,
-        numDays: eventType === 'multi' ? (parseInt(numDaysInput.value) || 1) : 1,
-        hoursPerDay: eventType === 'multi' ? (parseInt(hoursPerDayInput.value) || 1) : totalHours,
-        numLocations,
-        locationType: locationSelect.value
+        totalCost: numPros * ratePerProPerHour * totalHours
     };
 
     // Update summary display
@@ -168,13 +114,6 @@ function updateSummary() {
     summaryTotalApptsPerHour.textContent = calculatorState.totalApptsPerHour;
     summaryTotalAppts.textContent = calculatorState.totalAppts;
     summaryTotalCost.textContent = formatCurrency(calculatorState.totalCost);
-    
-    if (summaryNumDays) {
-        summaryNumDays.textContent = calculatorState.numDays;
-    }
-    if (summaryNumLocations) {
-        summaryNumLocations.textContent = calculatorState.numLocations;
-    }
 }
 
 async function createProposal() {
@@ -195,15 +134,19 @@ async function createProposal() {
         createProposalButton.disabled = true;
         createProposalButton.textContent = 'Creating...';
 
-        // Create proposal in Firebase using static method
-        const proposal = await ProposalService.createProposal(calculatorState, clientInfo);
+        // Create proposal in Firebase
+        const proposal = await proposalService.createProposal({
+            calculatorState,
+            clientInfo,
+            editableFields: ['totalHours', 'numPros']
+        });
 
         // Show success message with access code
         proposalResult.style.display = 'block';
         accessCodeSpan.textContent = proposal.accessCode;
         
         // Generate and display proposal link
-        const proposalLink = `${window.location.origin}/proposal.html?id=${proposal.proposalId}`;
+        const proposalLink = `${window.location.origin}/proposal.html?id=${proposal.id}`;
         proposalLinkInput.value = proposalLink;
 
         // Scroll to the result
@@ -240,51 +183,4 @@ function formatCurrency(amount) {
 }
 
 // Initial calculation
-calculateResults();
-
-// Share proposal functionality
-async function shareProposal() {
-    // Validate client name
-    if (!clientNameInput.value) {
-        alert('Please enter a client name before sharing the proposal');
-        return;
-    }
-
-    try {
-        const shareButton = document.getElementById('share-proposal');
-        if (shareButton) {
-            shareButton.disabled = true;
-            shareButton.textContent = 'Creating...';
-        }
-
-        // Create proposal in Firebase
-        const proposal = await ProposalService.createProposal(calculatorState, {
-            name: clientNameInput.value,
-            email: '', // Optional email
-            phone: '' // Optional phone
-        });
-
-        // Show proposal link and access code
-        proposalResult.style.display = 'block';
-        accessCodeSpan.textContent = proposal.accessCode;
-        
-        // Generate and display proposal link
-        const proposalLink = `${window.location.origin}/proposal.html?id=${proposal.proposalId}`;
-        proposalLinkInput.value = proposalLink;
-
-        // Scroll to the result
-        proposalResult.scrollIntoView({ behavior: 'smooth' });
-
-    } catch (error) {
-        console.error('Error creating proposal:', error);
-        alert('Failed to create proposal. Please try again.');
-    } finally {
-        if (shareButton) {
-            shareButton.disabled = false;
-            shareButton.textContent = 'Share Proposal';
-        }
-    }
-}
-
-// Add event listener for share proposal button
-document.getElementById('share-proposal')?.addEventListener('click', shareProposal); 
+calculateResults(); 
