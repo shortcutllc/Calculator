@@ -102,6 +102,8 @@ const PRESET_CONFIGURATIONS = {
     }
 };
 
+import { ResultVisibilityChecker } from './js/validation/result-visibility-checker';
+
 class PricingCalculator {
     /**
      * Calculate pricing details based on input parameters for multiple days and locations
@@ -111,69 +113,24 @@ class PricingCalculator {
      * @returns {Object} Calculated pricing details
      */
     calculateMultiple(configurations, eventsPerYear = 12) {
-        // Ensure eventsPerYear is a valid number
-        eventsPerYear = typeof eventsPerYear === 'number' && !isNaN(eventsPerYear) ? eventsPerYear : 12;
-        
-        // Initialize totals
-        let totalResults = {
-            totalAppts: 0,
-            totalProRev: 0,
-            totalCost: 0,
-            shortcutNet: 0,
-            totalAnnual: 0,
-            dayResults: [],
-            locationResults: {}
-        };
-        
-        // Process each configuration (day/location)
-        configurations.forEach((config, index) => {
-            // Calculate results for this configuration
-            const result = this.calculate(config);
-            
-            // Add to day results
-            totalResults.dayResults.push({
-                day: config.day || `Day ${index + 1}`,
-                location: config.location || `Location ${index + 1}`,
-                ...result
-            });
-            
-            // Add to location totals
-            const locationKey = config.location || `Location ${index + 1}`;
-            if (!totalResults.locationResults[locationKey]) {
-                totalResults.locationResults[locationKey] = {
-                    totalAppts: 0,
-                    totalProRev: 0,
-                    totalCost: 0,
-                    shortcutNet: 0
-                };
-            }
-            
-            // Update location totals
-            totalResults.locationResults[locationKey].totalAppts += result.totalAppts;
-            totalResults.locationResults[locationKey].totalProRev += result.totalProRev;
-            totalResults.locationResults[locationKey].totalCost += result.totalCost;
-            totalResults.locationResults[locationKey].shortcutNet += result.shortcutNet;
-            
-            // Update overall totals
-            totalResults.totalAppts += result.totalAppts;
-            totalResults.totalProRev += result.totalProRev;
-            totalResults.totalCost += result.totalCost;
-            totalResults.shortcutNet += result.shortcutNet;
-        });
-        
-        // Calculate overall margin
-        totalResults.shortcutMargin = (totalResults.shortcutNet / totalResults.totalCost) * 100;
-        
-        // Calculate annual totals
-        totalResults.totalAnnual = totalResults.totalCost * eventsPerYear;
-        
-        // Calculate location margins
-        Object.keys(totalResults.locationResults).forEach(location => {
-            const locResult = totalResults.locationResults[location];
-            locResult.shortcutMargin = (locResult.shortcutNet / locResult.totalCost) * 100;
-        });
-        
-        return totalResults;
+        // Perform existing calculations
+        const results = this.#performMultipleCalculations(configurations, eventsPerYear);
+
+        // Validate result visibility
+        const visibility = ResultVisibilityChecker.validateResultVisibility(results);
+        if (!visibility.isValid) {
+            console.error('Multi-day result visibility validation failed:', visibility.errorMessage);
+            throw new Error(`Multi-day calculation produced incomplete results: ${visibility.errorMessage}`);
+        }
+
+        // Validate result formatting
+        const formatting = ResultVisibilityChecker.validateResultFormatting(results);
+        if (!formatting.isValid) {
+            console.error('Multi-day result formatting validation failed:', formatting.formattingErrors);
+            throw new Error(`Invalid multi-day result formatting: ${formatting.formattingErrors.join(', ')}`);
+        }
+
+        return results;
     }
 
     /**
@@ -195,6 +152,28 @@ class PricingCalculator {
      * @returns {Object} Calculated pricing details
      */
     calculate(params) {
+        // Perform existing calculations
+        const results = this.#performCalculations(params);
+
+        // Validate result visibility
+        const visibility = ResultVisibilityChecker.validateResultVisibility(results);
+        if (!visibility.isValid) {
+            console.error('Result visibility validation failed:', visibility.errorMessage);
+            throw new Error(`Calculation produced incomplete results: ${visibility.errorMessage}`);
+        }
+
+        // Validate result formatting
+        const formatting = ResultVisibilityChecker.validateResultFormatting(results);
+        if (!formatting.isValid) {
+            console.error('Result formatting validation failed:', formatting.formattingErrors);
+            throw new Error(`Invalid result formatting: ${formatting.formattingErrors.join(', ')}`);
+        }
+
+        return results;
+    }
+
+    // Move existing calculation logic to private methods
+    #performCalculations(params) {
         // Extract parameters
         const {
             serviceType,
@@ -296,6 +275,69 @@ class PricingCalculator {
             day,
             location
         };
+    }
+
+    #performMultipleCalculations(configurations, eventsPerYear) {
+        // Initialize totals
+        let totalResults = {
+            totalAppts: 0,
+            totalProRev: 0,
+            totalCost: 0,
+            shortcutNet: 0,
+            totalAnnual: 0,
+            dayResults: [],
+            locationResults: {}
+        };
+        
+        // Process each configuration (day/location)
+        configurations.forEach((config, index) => {
+            // Calculate results for this configuration
+            const result = this.calculate(config);
+            
+            // Add to day results
+            totalResults.dayResults.push({
+                day: config.day || `Day ${index + 1}`,
+                location: config.location || `Location ${index + 1}`,
+                ...result
+            });
+            
+            // Add to location totals
+            const locationKey = config.location || `Location ${index + 1}`;
+            if (!totalResults.locationResults[locationKey]) {
+                totalResults.locationResults[locationKey] = {
+                    totalAppts: 0,
+                    totalProRev: 0,
+                    totalCost: 0,
+                    shortcutNet: 0
+                };
+            }
+            
+            // Update location totals
+            totalResults.locationResults[locationKey].totalAppts += result.totalAppts;
+            totalResults.locationResults[locationKey].totalProRev += result.totalProRev;
+            totalResults.locationResults[locationKey].totalCost += result.totalCost;
+            totalResults.locationResults[locationKey].shortcutNet += result.shortcutNet;
+            
+            // Update overall totals
+            totalResults.totalAppts += result.totalAppts;
+            totalResults.totalProRev += result.totalProRev;
+            totalResults.totalCost += result.totalCost;
+            totalResults.shortcutNet += result.shortcutNet;
+        });
+        
+        // Calculate overall margin
+        totalResults.shortcutMargin = (totalResults.shortcutNet / totalResults.totalCost) * 100;
+        
+        // Calculate annual totals
+        totalResults.totalAnnual = totalResults.totalCost * eventsPerYear;
+        
+        // Calculate location margins
+        Object.keys(totalResults.locationResults).forEach(location => {
+            const locResult = totalResults.locationResults[location];
+            locResult.shortcutMargin = (locResult.shortcutNet / locResult.totalCost) * 100;
+        });
+        
+        return totalResults;
     }
 
     /**
