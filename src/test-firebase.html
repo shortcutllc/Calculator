@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .debug { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Firebase Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>Firebase Status</h2>
+        <div id="firebase-status" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Create Test Proposal</h2>
+        <button id="create-test">Create Test Proposal</button>
+        <div id="create-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>View Proposal</h2>
+        <input type="text" id="proposal-id" placeholder="Proposal ID">
+        <input type="text" id="access-code" placeholder="Access Code">
+        <button id="view-test">View Proposal</button>
+        <div id="view-result" class="result"></div>
+    </div>
+
+    <!-- Import Firebase scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6T8-RBjs_6bOe_TSq7wOmB8GF6e-yj4s",
+            authDomain: "calculatorv2-30a5e.firebaseapp.com",
+            projectId: "calculatorv2-30a5e",
+            storageBucket: "calculatorv2-30a5e.appspot.com",
+            messagingSenderId: "629280363819",
+            appId: "1:629280363819:web:fd7ce2a6514b200087616e",
+            measurementId: "G-1Q7CNKZYN1"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const firebaseStatus = document.getElementById('firebase-status');
+
+        class ProposalService {
+            constructor(db) {
+                if (!db) {
+                    throw new Error('Firestore database instance is required');
+                }
+                this.db = db;
+            }
+
+            generateAccessCode() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let code = '';
+                for (let i = 0; i < 6; i++) {
+                    code += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return code;
+            }
+
+            async createProposal({ calculatorState, clientInfo, editableFields = [] }) {
+                try {
+                    const accessCode = this.generateAccessCode();
+                    const createdAt = new Date();
+                    
+                    // Add the document to the collection
+                    const docRef = await this.db.collection('proposals').add({
+                        calculatorState,
+                        clientInfo,
+                        accessCode,
+                        editableFields,
+                        createdAt,
+                        updatedAt: createdAt
+                    });
+
+                    return {
+                        id: docRef.id,
+                        accessCode
+                    };
+                } catch (error) {
+                    console.error('Error creating proposal:', error);
+                    throw error;
+                }
+            }
+
+            async getProposal(proposalId) {
+                try {
+                    const docRef = this.db.collection('proposals').doc(proposalId);
+                    const docSnap = await docRef.get();
+                    
+                    if (!docSnap.exists) {
+                        throw new Error('Proposal not found');
+                    }
+
+                    return {
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    };
+                } catch (error) {
+                    console.error('Error getting proposal:', error);
+                    throw error;
+                }
+            }
+        }
+
+        // Initialize ProposalService
+        const proposalService = new ProposalService(db);
+        firebaseStatus.innerHTML = '<p class="success">Firebase initialized successfully</p>';
+
+        // Test proposal creation
+        document.getElementById('create-test').addEventListener('click', async () => {
+            const result = document.getElementById('create-result');
+            result.innerHTML = '<p class="debug">Creating proposal...</p>';
+            
+            try {
+                const testProposal = await proposalService.createProposal({
+                    calculatorState: {
+                        eventType: 'single',
+                        totalHours: 4,
+                        numPros: 3,
+                        serviceType: 'massage',
+                        ratePerProPerHour: 135,
+                        totalCost: 1620
+                    },
+                    clientInfo: {
+                        name: 'Test Client',
+                        email: 'test@example.com',
+                        phone: '123-456-7890'
+                    },
+                    editableFields: ['totalHours', 'numPros']
+                });
+
+                result.innerHTML += `
+                    <p class="success">Proposal created successfully!</p>
+                    <p>Proposal ID: ${testProposal.id}</p>
+                    <p>Access Code: ${testProposal.accessCode}</p>
+                `;
+            } catch (error) {
+                console.error('Creation error:', error);
+                result.innerHTML += `
+                    <p class="error">Error: ${error.message}</p>
+                    <p class="debug">Error details: ${JSON.stringify(error, null, 2)}</p>
+                `;
+            }
+        });
+
+        // Test proposal viewing
+        document.getElementById('view-test').addEventListener('click', async () => {
+            const proposalId = document.getElementById('proposal-id').value;
+            const accessCode = document.getElementById('access-code').value;
+            const result = document.getElementById('view-result');
+            
+            result.innerHTML = '<p class="debug">Fetching proposal...</p>';
+
+            try {
+                const proposal = await proposalService.getProposal(proposalId);
+                
+                if (proposal.accessCode !== accessCode) {
+                    throw new Error('Invalid access code');
+                }
+
+                result.innerHTML += `
+                    <p class="success">Proposal retrieved successfully!</p>
+                    <pre>${JSON.stringify(proposal, null, 2)}</pre>
+                `;
+            } catch (error) {
+                console.error('Viewing error:', error);
+                result.innerHTML += `
+                    <p class="error">Error: ${error.message}</p>
+                    <p class="debug">Error details: ${JSON.stringify(error, null, 2)}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html> 

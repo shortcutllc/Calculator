@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Connection Test</title>
+</head>
+<body>
+    <div style="text-align: center; padding: 20px;">
+        <h1>Firebase Connection Test</h1>
+        <button id="testConnection" style="padding: 10px 20px; font-size: 16px; margin: 20px;">
+            Test Firebase Connection
+        </button>
+        <div id="result" style="margin-top: 20px; font-size: 18px;"></div>
+    </div>
+
+    <script type="module">
+        import { testFirebaseConnection } from './js/test-firebase.js';
+
+        document.getElementById('testConnection').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'Testing connection...';
+            
+            try {
+                const success = await testFirebaseConnection();
+                if (success) {
+                    resultDiv.textContent = '✅ Firebase connection successful! Check console for details.';
+                    resultDiv.style.color = 'green';
+                } else {
+                    resultDiv.textContent = '❌ Firebase connection failed. Check console for errors.';
+                    resultDiv.style.color = 'red';
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ Error: ' + error.message;
+                resultDiv.style.color = 'red';
+                console.error('Test error:', error);
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortcut - Service Calculator</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/calculator.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="calculator">
+        <!-- Header -->
+        <header class="calculator-header">
+            <img src="./assets/shortcut-logo.svg" alt="Shortcut Logo" class="logo">
+            <h1>Service Calculator</h1>
+        </header>
+
+        <!-- Calculator Form -->
+        <div class="calculator-form">
+            <!-- Client Information -->
+            <section class="form-section">
+                <h2>Client Information</h2>
+                <div class="form-group">
+                    <label for="client-name">Client Name</label>
+                    <input type="text" id="client-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="client-email">Client Email</label>
+                    <input type="email" id="client-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="client-phone">Client Phone</label>
+                    <input type="tel" id="client-phone">
+                </div>
+            </section>
+
+            <!-- Service Configuration -->
+            <section class="form-section">
+                <h2>Service Configuration</h2>
+                <div class="form-group">
+                    <label for="event-type">Event Type</label>
+                    <select id="event-type" required>
+                        <option value="single">Single Day Event</option>
+                        <option value="multi">Multi-Day Event</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="service-type">Service Type</label>
+                    <select id="service-type" required>
+                        <option value="massage">Massage & Spa ($135/hr)</option>
+                        <option value="hair">Hair & Nails ($135/hr)</option>
+                        <option value="headshots">Headshots ($400/hr)</option>
+                        <option value="custom">Custom Rate</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="custom-rate-group" style="display: none;">
+                    <label for="custom-rate">Custom Rate (per pro per hour)</label>
+                    <input type="number" id="custom-rate" min="1" step="1" value="135">
+                </div>
+
+                <!-- Single Day Configuration -->
+                <div id="single-day-group">
+                    <div class="form-group">
+                        <label for="total-hours">Total Hours</label>
+                        <input type="number" id="total-hours" min="1" step="1" value="1" required>
+                    </div>
+                </div>
+
+                <!-- Multi-Day Configuration -->
+                <div id="multi-day-group" style="display: none;">
+                    <div class="form-group">
+                        <label for="num-days">Number of Days</label>
+                        <input type="number" id="num-days" min="1" step="1" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hours-per-day">Hours per Day</label>
+                        <input type="number" id="hours-per-day" min="1" step="1" value="1" required>
+                    </div>
+                </div>
+
+                <!-- Location Configuration -->
+                <div class="form-group">
+                    <label for="location-type">Location Type</label>
+                    <select id="location-type" required>
+                        <option value="single">Single Location</option>
+                        <option value="multiple">Multiple Locations</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="num-locations">Number of Locations</label>
+                    <input type="number" id="num-locations" min="1" step="1" value="1" required disabled>
+                </div>
+
+                <div class="form-group">
+                    <label for="num-pros">Number of Professionals</label>
+                    <input type="number" id="num-pros" min="1" step="1" value="1" required>
+                </div>
+
+                <button id="calculate" class="btn btn-secondary">Calculate</button>
+            </section>
+
+            <!-- Results Summary -->
+            <section class="form-section">
+                <h2>Service Summary</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <label>Total Hours</label>
+                        <span id="summary-total-hours">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <label>Rate Per Pro Per Hour</label>
+                        <span id="summary-rate-per-pro">$0</span>
+                    </div>
+                    <div class="summary-item">
+                        <label>Number of Days</label>
+                        <span id="summary-num-days">1</span>
+                    </div>
+                    <div class="summary-item">
+                        <label>Number of Locations</label>
+                        <span id="summary-num-locations">1</span>
+                    </div>
+                    <div class="summary-item">
+                        <label>Appointments Per Pro Per Hour</label>
+                        <span id="summary-appts-per-pro">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <label>Total Appointments Per Hour</label>
+                        <span id="summary-total-appts-per-hour">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <label>Total Appointments</label>
+                        <span id="summary-total-appts">0</span>
+                    </div>
+                    <div class="summary-item total-cost">
+                        <label>Total Cost</label>
+                        <span id="summary-total-cost">$0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Create Proposal -->
+            <section class="form-section">
+                <button id="create-proposal" class="btn btn-primary">Create Proposal</button>
+                <div id="proposal-result" class="proposal-result" style="display: none;">
+                    <h3>Proposal Created!</h3>
+                    <p>Access Code: <span id="access-code"></span></p>
+                    <p>Share this link with your client:</p>
+                    <input type="text" id="proposal-link" readonly>
+                    <button id="copy-link" class="btn btn-secondary">Copy Link</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script type="module" src="./js/calculator.js"></script>
+</body>
+</html> 

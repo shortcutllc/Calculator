@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortcut - Proposal Viewer</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/proposal-viewer.css">
+</head>
+<body>
+    <div class="proposal-viewer">
+        <!-- Header -->
+        <header class="proposal-header">
+            <img src="./assets/shortcut-logo.svg" alt="Shortcut Logo" class="logo">
+            <h1>Service Proposal</h1>
+        </header>
+
+        <!-- Access Code Form -->
+        <div class="access-form">
+            <h2>Enter Access Code</h2>
+            <div class="form-group">
+                <input type="text" id="access-code-input" placeholder="Enter your 6-digit access code" maxlength="6">
+                <button id="view-proposal" class="btn btn-primary">View Proposal</button>
+            </div>
+            <p id="access-error" class="error-message"></p>
+        </div>
+
+        <!-- Proposal Summary (hidden until access granted) -->
+        <div id="proposal-summary" class="proposal-summary" style="display: none;">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script type="module" src="./js/proposal-viewer.js"></script>
+</body>
+</html> 

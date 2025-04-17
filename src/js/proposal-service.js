@@ -1,42 +1,47 @@
-import { collection, addDoc, getDoc, doc, updateDoc } from 'firebase/firestore';
+import { v4 as uuidv4 } from 'uuid';
 
 export class ProposalService {
-    constructor(db) {
-        if (!db) {
-            throw new Error('Firestore database instance is required');
-        }
-        this.db = db;
-    }
-
-    generateAccessCode() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let code = '';
-        for (let i = 0; i < 6; i++) {
-            code += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return code;
-    }
-
-    async createProposal({ calculatorState, clientInfo, editableFields = [] }) {
+    /**
+     * Creates a new proposal in Firestore
+     * @param {Object} calculatorState - The current state of the calculator
+     * @param {Object} clientInfo - Information about the client
+     * @returns {Promise<Object>} The created proposal's ID and access code
+     */
+    static async createProposal(calculatorState, clientInfo) {
         try {
             const accessCode = this.generateAccessCode();
-            const createdAt = new Date();
+            const proposalId = uuidv4();
             
-            // Create a reference to the proposals collection
-            const proposalsCollectionRef = collection(this.db, 'proposals');
+            // Define which fields can be edited by the client
+            const editableFields = ['totalHours', 'numPros'];
+
+            // Structure the client summary fields
+            const clientSummary = {
+                totalHours: calculatorState.totalHours,
+                apptsPerProPerHour: calculatorState.apptsPerProPerHour,
+                totalApptsPerHour: calculatorState.totalApptsPerHour,
+                totalAppts: calculatorState.totalAppts,
+                totalCost: calculatorState.totalCost
+            };
             
-            // Add the document to the collection
-            const docRef = await addDoc(proposalsCollectionRef, {
+            const proposalData = {
+                id: proposalId,
                 calculatorState,
                 clientInfo,
+                clientSummary,
                 accessCode,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                viewCount: 0,
+                lastViewed: null,
                 editableFields,
-                createdAt,
-                updatedAt: createdAt
-            });
+                isMultiDay: calculatorState.eventType === 'multi'
+            };
+
+            // Store in Firestore
+            await firebase.firestore().collection('proposals').doc(proposalId).set(proposalData);
 
             return {
-                id: docRef.id,
+                proposalId,
                 accessCode
             };
         } catch (error) {
@@ -45,18 +50,29 @@ export class ProposalService {
         }
     }
 
-    async getProposal(proposalId) {
+    /**
+     * Retrieves a proposal from Firestore
+     * @param {string} proposalId - The ID of the proposal to retrieve
+     * @param {string} accessCode - The access code for the proposal
+     * @returns {Promise<Object>} The proposal data
+     */
+    static async getProposal(proposalId, accessCode) {
         try {
-            const docRef = doc(this.db, 'proposals', proposalId);
-            const docSnap = await getDoc(docRef);
-            
-            if (!docSnap.exists()) {
+            const doc = await firebase.firestore().collection('proposals').doc(proposalId).get();
+
+            if (!doc.exists) {
                 throw new Error('Proposal not found');
             }
 
+            const data = doc.data();
+            
+            if (data.accessCode !== accessCode) {
+                throw new Error('Invalid access code');
+            }
+
             return {
-                id: docSnap.id,
-                ...docSnap.data()
+                ...data,
+                id: doc.id
             };
         } catch (error) {
             console.error('Error getting proposal:', error);
@@ -64,33 +80,12 @@ export class ProposalService {
         }
     }
 
-    async updateProposal(proposalId, accessCode, updates) {
-        try {
-            const docRef = doc(this.db, 'proposals', proposalId);
-            const docSnap = await getDoc(docRef);
-            
-            if (!docSnap.exists()) {
-                throw new Error('Proposal not found');
-            }
-
-            const proposal = docSnap.data();
-            if (proposal.accessCode !== accessCode) {
-                throw new Error('Invalid access code');
-            }
-
-            await updateDoc(docRef, {
-                ...updates,
-                updatedAt: new Date()
-            });
-
-            const updatedDocSnap = await getDoc(docRef);
-            return {
-                id: updatedDocSnap.id,
-                ...updatedDocSnap.data()
-            };
-        } catch (error) {
-            console.error('Error updating proposal:', error);
-            throw error;
-        }
+    /**
+     * Generates a 6-character alphanumeric access code
+     * @returns {string} The generated access code
+     */
+    static generateAccessCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        return Array.from({ length: 6 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
     }
 } 

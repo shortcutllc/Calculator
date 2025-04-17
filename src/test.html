@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Import Test</title>
+</head>
+<body>
+    <div style="text-align: center; padding: 20px;">
+        <h1>Firebase Import Test</h1>
+        <div id="result" style="margin-top: 20px; font-size: 18px;"></div>
+    </div>
+
+    <script type="module">
+        import { app, db, analytics } from './services/firebase.js';
+
+        const resultDiv = document.getElementById('result');
+        
+        try {
+            console.log('Firebase app:', app);
+            console.log('Firestore db:', db);
+            console.log('Analytics:', analytics);
+            
+            resultDiv.textContent = '✅ Firebase imports successful! Check console for details.';
+            resultDiv.style.color = 'green';
+        } catch (error) {
+            console.error('Import error:', error);
+            resultDiv.textContent = '❌ Error: ' + error.message;
+            resultDiv.style.color = 'red';
+        }
+    </script>
+</body>
+</html> 
