@@ -1,0 +1,114 @@
+<div id="results" class="results-section" style="display: none;">
+    <!-- Existing results content -->
+    <button onclick="shareCalculation()" class="btn btn-primary">Share Calculation</button>
+</div>
+
+<!-- Share Modal -->
+<div class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Share Proposal</h3>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="access-code-section">
+                <label for="access-code">Access Code:</label>
+                <input type="text" id="access-code" readonly>
+            </div>
+            <div class="share-link-section">
+                <label for="share-link">Share Link:</label>
+                <div class="share-link-container">
+                    <input type="text" id="share-link" readonly>
+                    <button id="copy-link">Copy</button>
+                    <span class="copy-success">Copied!</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Existing scripts -->
+<script type="module" src="js/calculator.js"></script>
+
+<title>Calculator</title>
+<style>
+    /* ... existing styles ... */
+    
+    /* Share Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        color: #333;
+    }
+
+    .close-modal {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close-modal:hover {
+        color: #666;
+    }
+
+    .share-info {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .access-code-section,
+    .share-link-section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .link-container {
+        display: flex;
+        gap: 10px;
+    }
+
+    #access-code,
+    #share-link {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+    }
+
+    #copy-link {
+        white-space: nowrap;
+    }
+</style> 

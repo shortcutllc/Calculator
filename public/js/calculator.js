@@ -1,3 +1,12 @@
+import { firebaseConfig } from './firebase-config.js';
+import { ProposalService } from './proposal-service.js';
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 function loadPreset(serviceType, presetSize) {
     try {
         const preset = PricingCalculator.getPresetConfiguration(serviceType, presetSize);
@@ -128,22 +137,39 @@ function closeShareModal() {
 }
 
 function showShareModal() {
-    const modal = document.getElementById('share-modal');
-    modal.style.display = 'flex';
-    
-    // Add click event to close button if not already added
-    const closeBtn = modal.querySelector('.close-button');
-    if (closeBtn) {
-        closeBtn.onclick = closeShareModal;
-    }
-    
-    // Close modal when clicking outside
-    modal.onclick = function(event) {
-        if (event.target === modal) {
-            closeShareModal();
-        }
-    };
+    const modal = document.querySelector('.modal');
+    modal.style.display = 'block';
 }
+
+function hideShareModal() {
+    const modal = document.querySelector('.modal');
+    modal.style.display = 'none';
+}
+
+function copyShareLink() {
+    const shareLink = document.getElementById('share-link');
+    shareLink.select();
+    document.execCommand('copy');
+    
+    const copyButton = document.getElementById('copy-link');
+    const originalText = copyButton.textContent;
+    copyButton.textContent = 'Copied!';
+    setTimeout(() => {
+        copyButton.textContent = originalText;
+    }, 2000);
+}
+
+// Event Listeners
+document.querySelector('.close-modal').addEventListener('click', hideShareModal);
+document.getElementById('copy-link').addEventListener('click', copyShareLink);
+
+// Close modal when clicking outside
+window.addEventListener('click', (event) => {
+    const modal = document.querySelector('.modal');
+    if (event.target === modal) {
+        hideShareModal();
+    }
+});
 
 function saveDraft() {
     const formData = {
@@ -236,4 +262,113 @@ function displayHistory() {
 }
 
 // Initialize history display on page load
-window.addEventListener('load', displayHistory); 
+window.addEventListener('load', displayHistory);
+
+// Add proposal sharing functionality
+async function shareCalculation() {
+    const modal = document.getElementById('share-modal');
+    const modalContent = modal.querySelector('.modal-content');
+    
+    // Get current calculation state
+    const calculationState = {
+        clientName: document.getElementById('client-name').value,
+        serviceType: document.getElementById('service-type').value,
+        totalHours: document.getElementById('total-hours').value,
+        appTime: document.getElementById('appointment-time').value,
+        numPros: document.getElementById('num-professionals').value,
+        proHourly: document.getElementById('pro-hourly').value,
+        hourlyRate: document.getElementById('hourly-rate').value,
+        earlyArrival: document.getElementById('early-arrival').value,
+        retouchingCost: document.getElementById('retouching-cost').value,
+        timestamp: new Date().toISOString()
+    };
+    
+    // Create modal content
+    modalContent.innerHTML = `
+        <h3>Share Calculation</h3>
+        <div>
+            <label for="shareLink">Share Link:</label>
+            <input type="text" id="shareLink" readonly value="${window.location.origin}/view-calculation?id=${Date.now()}" />
+            <button onclick="copyShareLink()" class="btn btn-primary">Copy Link</button>
+            <span id="copySuccess" class="copy-success">Link copied!</span>
+        </div>
+    `;
+    
+    modal.style.display = 'block';
+    
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
+
+// Modal functionality
+const modal = document.querySelector('.modal');
+const closeModalBtn = document.querySelector('.close-modal');
+const copyLinkBtn = document.getElementById('copy-link');
+const shareLink = document.getElementById('share-link');
+const accessCode = document.getElementById('access-code');
+const copySuccess = document.querySelector('.copy-success');
+
+function showModal(proposalData) {
+    modal.style.display = 'block';
+    accessCode.value = proposalData.accessCode;
+    shareLink.value = proposalData.shareLink;
+}
+
+function hideModal() {
+    modal.style.display = 'none';
+    copySuccess.classList.remove('show');
+}
+
+async function copyLinkToClipboard() {
+    try {
+        await navigator.clipboard.writeText(shareLink.value);
+        copySuccess.classList.add('show');
+        setTimeout(() => copySuccess.classList.remove('show'), 2000);
+    } catch (err) {
+        console.error('Failed to copy link:', err);
+    }
+}
+
+// Event listeners for modal
+closeModalBtn.addEventListener('click', hideModal);
+copyLinkBtn.addEventListener('click', copyLinkToClipboard);
+window.addEventListener('click', (event) => {
+    if (event.target === modal) {
+        hideModal();
+    }
+});
+
+// Update the saveCalculationToHistory function to show the modal
+async function saveCalculationToHistory() {
+    try {
+        const proposalData = await ProposalService.createProposal({
+            clientName: document.getElementById('client-name').value,
+            calculatorState: getCalculatorState()
+        });
+        
+        // Show the modal with the proposal data
+        showModal({
+            accessCode: proposalData.accessCode,
+            shareLink: `${window.location.origin}/proposal.html?code=${proposalData.accessCode}`
+        });
+        
+        // Also save to local history as before
+        const calculation = {
+            timestamp: new Date().toISOString(),
+            clientName: document.getElementById('client-name').value,
+            // ... rest of the calculation data ...
+        };
+        
+        let history = JSON.parse(localStorage.getItem('calculationHistory')) || [];
+        history.unshift(calculation);
+        localStorage.setItem('calculationHistory', JSON.stringify(history));
+        
+    } catch (error) {
+        console.error('Error saving calculation:', error);
+        alert('Failed to save calculation. Please try again.');
+    }
+} 
