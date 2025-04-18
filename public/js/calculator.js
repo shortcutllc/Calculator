@@ -99,25 +99,38 @@ function showError(message) {
 }
 
 function checkPassword(event) {
-    event.preventDefault();
-    const password = document.getElementById('password-input').value;
-    const correctPassword = 'shortcut2024'; // This should match your expected password
+    if (event) event.preventDefault();
+    
+    // Check URL parameters first
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlPassword = urlParams.get('password');
+    
+    // Get password from input if no URL parameter
+    const inputPassword = document.getElementById('password-input')?.value;
+    const password = urlPassword || inputPassword;
+    
+    const correctPassword = 'LouieJack1!'; // Updated to correct password
 
     if (password === correctPassword) {
         document.getElementById('password-screen').style.display = 'none';
         document.querySelector('.container').style.display = 'block';
         // Save successful login in session storage
         sessionStorage.setItem('authenticated', 'true');
+        return true;
     } else {
-        showError('Incorrect password. Please try again.');
-        document.getElementById('password-input').value = '';
+        if (!urlPassword) { // Only show error if checking input password
+            showError('Incorrect password. Please try again.');
+            if (document.getElementById('password-input')) {
+                document.getElementById('password-input').value = '';
+            }
+        }
+        return false;
     }
-    return false;
 }
 
-// Check for saved authentication on page load
+// Check for saved authentication or URL parameter on page load
 window.addEventListener('load', function() {
-    if (sessionStorage.getItem('authenticated') === 'true') {
+    if (sessionStorage.getItem('authenticated') === 'true' || checkPassword()) {
         document.getElementById('password-screen').style.display = 'none';
         document.querySelector('.container').style.display = 'block';
     }
