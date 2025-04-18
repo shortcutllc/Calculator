@@ -1174,84 +1174,6 @@
     .secondary-button:hover {
         background-color: #e0e0e0;
     }
-    
-    /* Loading Spinner Styles */
-    .loading-spinner {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1000;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 20px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-    }
-    
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid var(--light-gray);
-      border-top: 4px solid var(--primary-color);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    .loading-text {
-      margin-top: 10px;
-      color: var(--secondary-color);
-      font-weight: 600;
-    }
-
-    /* Add these styles to the existing CSS */
-    .calculator-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding: 15px;
-      background-color: var(--light-gray);
-      border-radius: var(--border-radius);
-      margin-top: 20px;
-    }
-
-    .client-name-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .client-name-group label {
-      margin-bottom: 0;
-      white-space: nowrap;
-    }
-
-    .calculator-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    @media (max-width: 768px) {
-      .calculator-header {
-        flex-direction: column;
-        gap: 15px;
-      }
-      
-      .client-name-group {
-        width: 100%;
-      }
-      
-      .calculator-actions {
-        width: 100%;
-        justify-content: space-between;
-      }
-    }
   </style>
 </head>
 <body>
@@ -1302,35 +1224,29 @@
         <button class="tab-btn" data-tab="history">History</button>
       </div>
 
-      <div id="single-event-tab" class="tab-content" style="display: none;">
-        <button class="back-btn" onclick="showWelcomeScreen()">Back to Main Menu</button>
-        <div class="calculator-header">
-          <div class="client-name-group">
-            <label for="clientName">Client Name:</label>
-            <input type="text" id="clientName" class="form-control">
-          </div>
-          <div class="calculator-actions">
-            <button id="calculate-btn" class="btn btn-primary" onclick="calculateSingleEvent()">Calculate</button>
-            <button id="save-draft-btn" class="btn btn-secondary" onclick="saveDraft()">Save as Draft</button>
-            <button id="reset-btn" class="btn btn-neutral" onclick="resetSingleEvent()">Reset</button>
-          </div>
-        </div>
+      <div class="tab-content" id="single-event-tab" style="display: none;">
+        <button class="back-btn">Back to Main Menu</button>
         <div class="calculator-container">
           <div class="input-section">
             <h2>Input Parameters</h2>
             <form id="calculator-form">
               <div class="form-group">
-                <label for="serviceType">Service Type:</label>
-                <select id="serviceType" class="form-control">
-                  <option value="massage">Massage/Spa</option>
-                  <option value="hair">Hair/Nails</option>
-                  <option value="headshot">Headshot</option>
-                </select>
+                <label for="clientName">Client Name:</label>
+                <input type="text" id="clientName" name="clientName" placeholder="Enter client name" value="">
               </div>
               
               <div class="form-group">
+                <label for="serviceType">Service Type:</label>
+                <select id="serviceType" name="serviceType" required>
+                  <option value="massage/spa">Massage/Spa</option>
+                  <option value="hair/nails">Hair/Nails</option>
+                  <option value="headshot">Headshot</option>
+                </select>
+              </div>
+
+              <div class="form-group">
                 <label for="totalHours">Event Duration (hours):</label>
-                <input type="number" id="totalHours" class="form-control" min="1" step="0.5" required>
+                <input type="number" id="totalHours" name="totalHours" min="1" max="12" step="0.5" value="4" required>
               </div>
 
               <div class="form-group">
@@ -1375,7 +1291,7 @@
 
               <div class="form-group">
                 <label for="eventsPerYear">Events Per Year (for annual calculation):</label>
-                <input type="number" id="eventsPerYear" class="form-control" min="1" value="1">
+                <input type="number" id="eventsPerYear" name="eventsPerYear" min="1" max="365" value="12" required>
               </div>
 
               <div class="form-actions">
@@ -1388,7 +1304,7 @@
 
           <div class="results-section">
             <h2>Calculation Results</h2>
-            <div id="results-container" style="display: none;">
+            <div id="results-container">
               <div class="result-card">
                 <h3>Client Details</h3>
                 <div class="result-item">
@@ -2093,95 +2009,77 @@
       }
     }
     
-    // Loading Spinner Functions
-    function showLoading(message = 'Calculating...') {
-      const spinner = document.getElementById('loading-spinner');
-      const loadingText = spinner.querySelector('.loading-text');
-      loadingText.textContent = message;
-      spinner.style.display = 'block';
-    }
-    
-    function hideLoading() {
-      const spinner = document.getElementById('loading-spinner');
-      spinner.style.display = 'none';
-    }
-    
-    // Update the calculateSingleEvent function
     function calculateSingleEvent() {
-      showLoading('Calculating single event...');
-      setTimeout(() => {
-        const serviceType = serviceTypeSelect.value;
-        const clientName = document.getElementById('clientName').value;
-        const totalHours = parseFloat(totalHoursInput.value);
-        const appTime = parseFloat(appTimeInput.value);
-        const numPros = parseInt(numProsInput.value);
-        const proHourly = parseFloat(proHourlyInput.value);
-        const discountPercent = parseFloat(discountPercentInput.value);
-        const eventsPerYear = parseInt(eventsPerYearInput.value);
-        
-        // Calculate appointments per hour
-        const apptsPerHourPerPro = 60 / appTime;
-        const totalApptsPerHour = apptsPerHourPerPro * numPros;
-        const totalApptsValue = Math.floor(totalHours * totalApptsPerHour);
-        
-        // Calculate costs
-        let totalCostValue = 0;
-        let totalProRevValue = 0;
-        
-        if (serviceType === 'headshot') {
-          const retouchingCost = parseFloat(retouchingCostInput.value);
-          totalProRevValue = totalHours * numPros * proHourly;
-          totalCostValue = totalProRevValue + (totalApptsValue * retouchingCost);
-        } else {
-          const hourlyRate = parseFloat(hourlyRateInput.value);
-          const earlyArrivalBase = parseFloat(earlyArrivalInput.value); // Base rate per pro
-          const totalEarlyArrival = earlyArrivalBase * numPros; // Total early arrival bonus
-          totalProRevValue = (totalHours * numPros * proHourly) + totalEarlyArrival;
-          totalCostValue = (totalHours * hourlyRate * numPros);
-        }
-        
-        // Apply discount
-        if (discountPercent > 0) {
-          totalCostValue = totalCostValue * (1 - (discountPercent / 100));
-        }
-        
-        // Calculate Shortcut profit
-        const shortcutNetValue = totalCostValue - totalProRevValue;
-        const shortcutMarginValue = (shortcutNetValue / totalCostValue) * 100;
-        const totalAnnualValue = totalCostValue * eventsPerYear;
-        
-        // Update results - Remove decimal points from non-monetary values
-        totalHoursResult.textContent = `${totalHours} hours`;
-        apptsPerProPerHour.textContent = `${Math.round(apptsPerHourPerPro)}`;
-        apptsPerHour.textContent = `${Math.round(totalApptsPerHour)}`;
-        totalAppts.textContent = `${totalApptsValue}`;
-        totalCost.textContent = `$${totalCostValue.toFixed(2)}`;
-        totalProRev.textContent = `$${totalProRevValue.toFixed(2)}`;
-        shortcutNet.textContent = `$${shortcutNetValue.toFixed(2)}`;
-        shortcutMargin.textContent = `${shortcutMarginValue.toFixed(2)}%`;
-        totalAnnual.textContent = `$${totalAnnualValue.toFixed(2)}`;
-        
-        // Store current calculation
-        currentCalculation = {
-          type: 'single',
-          clientName,
-          serviceType,
-          totalHours,
-          appTime,
-          numPros,
-          totalAppts: totalApptsValue,
-          totalCost: totalCostValue,
-          totalProRev: totalProRevValue,
-          shortcutNet: shortcutNetValue,
-          shortcutMargin: shortcutMarginValue,
-          totalAnnual: totalAnnualValue,
-          timestamp: new Date().toISOString()
-        };
-        
-        // Show proposal button
-        document.querySelector('.proposal-actions').style.display = 'block';
-        hideLoading();
-      }, 100);
+      const serviceType = serviceTypeSelect.value;
+      const clientName = document.getElementById('clientName').value;
+      const totalHours = parseFloat(totalHoursInput.value);
+      const appTime = parseFloat(appTimeInput.value);
+      const numPros = parseInt(numProsInput.value);
+      const proHourly = parseFloat(proHourlyInput.value);
+      const discountPercent = parseFloat(discountPercentInput.value);
+      const eventsPerYear = parseInt(eventsPerYearInput.value);
+      
+      // Calculate appointments per hour
+      const apptsPerHourPerPro = 60 / appTime;
+      const totalApptsPerHour = apptsPerHourPerPro * numPros;
+      const totalApptsValue = Math.floor(totalHours * totalApptsPerHour);
+      
+      // Calculate costs
+      let totalCostValue = 0;
+      let totalProRevValue = 0;
+      
+      if (serviceType === 'headshot') {
+        const retouchingCost = parseFloat(retouchingCostInput.value);
+        totalProRevValue = totalHours * numPros * proHourly;
+        totalCostValue = totalProRevValue + (totalApptsValue * retouchingCost);
+      } else {
+        const hourlyRate = parseFloat(hourlyRateInput.value);
+        const earlyArrivalBase = parseFloat(earlyArrivalInput.value); // Base rate per pro
+        const totalEarlyArrival = earlyArrivalBase * numPros; // Total early arrival bonus
+        totalProRevValue = (totalHours * numPros * proHourly) + totalEarlyArrival;
+        totalCostValue = (totalHours * hourlyRate * numPros);
+      }
+      
+      // Apply discount
+      if (discountPercent > 0) {
+        totalCostValue = totalCostValue * (1 - (discountPercent / 100));
+      }
+      
+      // Calculate Shortcut profit
+      const shortcutNetValue = totalCostValue - totalProRevValue;
+      const shortcutMarginValue = (shortcutNetValue / totalCostValue) * 100;
+      const totalAnnualValue = totalCostValue * eventsPerYear;
+      
+      // Update results - Remove decimal points from non-monetary values
+      totalHoursResult.textContent = `${totalHours} hours`;
+      apptsPerProPerHour.textContent = `${Math.round(apptsPerHourPerPro)}`;
+      apptsPerHour.textContent = `${Math.round(totalApptsPerHour)}`;
+      totalAppts.textContent = `${totalApptsValue}`;
+      totalCost.textContent = `$${totalCostValue.toFixed(2)}`;
+      totalProRev.textContent = `$${totalProRevValue.toFixed(2)}`;
+      shortcutNet.textContent = `$${shortcutNetValue.toFixed(2)}`;
+      shortcutMargin.textContent = `${shortcutMarginValue.toFixed(2)}%`;
+      totalAnnual.textContent = `$${totalAnnualValue.toFixed(2)}`;
+      
+      // Store current calculation
+      currentCalculation = {
+        type: 'single',
+        clientName,
+        serviceType,
+        totalHours,
+        appTime,
+        numPros,
+        totalAppts: totalApptsValue,
+        totalCost: totalCostValue,
+        totalProRev: totalProRevValue,
+        shortcutNet: shortcutNetValue,
+        shortcutMargin: shortcutMarginValue,
+        totalAnnual: totalAnnualValue,
+        timestamp: new Date().toISOString()
+      };
+      
+      // Show proposal button
+      document.querySelector('.proposal-actions').style.display = 'block';
     }
     
     function addNewDay() {
@@ -2476,142 +2374,141 @@
     }
     
     function calculateMultiDayEvent() {
-      showLoading('Calculating multi-day event...');
-      setTimeout(() => {
-        const clientName = document.getElementById('multiDayClientName').value;
-        const dayConfigs = document.querySelectorAll('.day-config');
-        const dayData = [];
+      const clientName = document.getElementById('multiDayClientName').value;
+      const dayConfigs = document.querySelectorAll('.day-config');
+      const dayData = [];
+      
+      let totalApptsAll = 0;
+      let totalCostAll = 0;
+      let totalProRevAll = 0;
+      let totalHoursAll = 0;
+      let totalApptsPerHourAll = 0;
+      let totalApptsPerProPerHourAll = 0;
+      let dayCount = 0;
+      
+      dayConfigs.forEach(dayConfig => {
+        const dayId = dayConfig.getAttribute('data-day-id');
+        const dayResult = calculateSingleDay(dayId);
+        dayData.push(dayResult);
         
-        let totalApptsAll = 0;
-        let totalCostAll = 0;
-        let totalProRevAll = 0;
-        let totalHoursAll = 0;
-        let totalApptsPerHourAll = 0;
-        let totalApptsPerProPerHourAll = 0;
-        let dayCount = 0;
-        
-        dayConfigs.forEach(dayConfig => {
-          const dayId = dayConfig.getAttribute('data-day-id');
-          const dayResult = calculateSingleDay(dayId);
-          dayData.push(dayResult);
-          
-          // Add to totals
-          totalApptsAll += dayResult.totalAppointments;
-          totalCostAll += dayResult.totalCost;
-          totalProRevAll += dayResult.totalProRev;
-          totalHoursAll += dayResult.totalHours;
-          totalApptsPerHourAll += dayResult.totalApptsPerHour;
-          totalApptsPerProPerHourAll += dayResult.apptsPerHourPerPro;
-          dayCount++;
-        });
-        
-        // Calculate overall values
-        const shortcutNetAll = totalCostAll - totalProRevAll;
-        const shortcutMarginAll = (shortcutNetAll / totalCostAll) * 100;
-        const totalAnnualAll = totalCostAll * 12; // Assuming 12 events per year
-        
-        // Calculate averages for per-hour metrics
-        const avgApptsPerHour = Math.round(totalApptsPerHourAll / dayCount);
-        const avgApptsPerProPerHour = Math.round(totalApptsPerProPerHourAll / dayCount);
-        
-        // Update summary results - Remove decimal points from non-monetary values
-        document.getElementById('multi-totalHoursResult').textContent = `${totalHoursAll} hours`;
-        document.getElementById('multi-apptsPerProPerHour').textContent = `${avgApptsPerProPerHour}`;
-        document.getElementById('multi-apptsPerHour').textContent = `${avgApptsPerHour}`;
-        multiTotalAppts.textContent = totalApptsAll;
-        multiTotalCost.textContent = `$${totalCostAll.toFixed(2)}`;
-        multiTotalProRev.textContent = `$${totalProRevAll.toFixed(2)}`;
-        multiShortcutNet.textContent = `$${shortcutNetAll.toFixed(2)}`;
-        multiShortcutMargin.textContent = `${shortcutMarginAll.toFixed(2)}%`;
-        multiTotalAnnual.textContent = `$${totalAnnualAll.toFixed(2)}`;
-        
-        // Populate By Location results
-        const byLocationResults = document.getElementById('by-location-results');
-        byLocationResults.innerHTML = '<h3>Results By Location</h3>';
-        
-        // Group by location
-        const locationGroups = {};
-        
-        dayData.forEach(day => {
-          const location = day.location;
-          if (!locationGroups[location]) {
-            locationGroups[location] = {
-              totalAppointments: 0,
-              totalCost: 0,
-              totalProRev: 0,
-              shortcutNet: 0,
-              days: []
-            };
-          }
-          
-          locationGroups[location].totalAppointments += day.totalAppointments;
-          locationGroups[location].totalCost += day.totalCost;
-          locationGroups[location].totalProRev += day.totalProRev;
-          locationGroups[location].shortcutNet += day.shortcutNet;
-          locationGroups[location].days.push(day.dayLabel || `Day ${day.dayId}`);
-        });
-        
-        for (const location in locationGroups) {
-          const locationData = locationGroups[location];
-          
-          const locationSection = document.createElement('div');
-          locationSection.className = 'location-section';
-          
-          locationSection.innerHTML = `
-            <h4>${location}</h4>
-            <div class="result-card">
-              <h3>Client Details</h3>
-              <div class="result-item">
-                <span class="result-label">Days:</span>
-                <span class="result-value">${locationData.days.join(', ')}</span>
-              </div>
-              <div class="result-item">
-                <span class="result-label">Total Appointments:</span>
-                <span class="result-value">${locationData.totalAppointments}</span>
-              </div>
-              <div class="result-item">
-                <span class="result-label">Cost to Customer:</span>
-                <span class="result-value">$${locationData.totalCost.toFixed(2)}</span>
-              </div>
-            </div>
-            <div class="result-card">
-              <h3>Shortcut Details</h3>
-              <div class="result-item">
-                <span class="result-label">Professional Revenue:</span>
-                <span class="result-value">$${locationData.totalProRev.toFixed(2)}</span>
-              </div>
-              <div class="result-item">
-                <span class="result-label">Shortcut Net:</span>
-                <span class="result-value">$${locationData.shortcutNet.toFixed(2)}</span>
-              </div>
-              <div class="result-item">
-                <span class="result-label">Profit Margin:</span>
-                <span class="result-value">${(locationData.shortcutNet / locationData.totalCost * 100).toFixed(2)}%</span>
-              </div>
-            </div>
-          `;
-          
-          byLocationResults.appendChild(locationSection);
+        // Add to totals
+        totalApptsAll += dayResult.totalAppointments;
+        totalCostAll += dayResult.totalCost;
+        totalProRevAll += dayResult.totalProRev;
+        totalHoursAll += dayResult.totalHours;
+        totalApptsPerHourAll += dayResult.totalApptsPerHour;
+        totalApptsPerProPerHourAll += dayResult.apptsPerHourPerPro;
+        dayCount++;
+      });
+      
+      // Calculate overall values
+      const shortcutNetAll = totalCostAll - totalProRevAll;
+      const shortcutMarginAll = (shortcutNetAll / totalCostAll) * 100;
+      const totalAnnualAll = totalCostAll * 12; // Assuming 12 events per year
+      
+      // Calculate averages for per-hour metrics
+      const avgApptsPerHour = Math.round(totalApptsPerHourAll / dayCount);
+      const avgApptsPerProPerHour = Math.round(totalApptsPerProPerHourAll / dayCount);
+      
+      // Update summary results - Remove decimal points from non-monetary values
+      document.getElementById('multi-totalHoursResult').textContent = `${totalHoursAll} hours`;
+      document.getElementById('multi-apptsPerProPerHour').textContent = `${avgApptsPerProPerHour}`;
+      document.getElementById('multi-apptsPerHour').textContent = `${avgApptsPerHour}`;
+      multiTotalAppts.textContent = totalApptsAll;
+      multiTotalCost.textContent = `$${totalCostAll.toFixed(2)}`;
+      multiTotalProRev.textContent = `$${totalProRevAll.toFixed(2)}`;
+      multiShortcutNet.textContent = `$${shortcutNetAll.toFixed(2)}`;
+      multiShortcutMargin.textContent = `${shortcutMarginAll.toFixed(2)}%`;
+      multiTotalAnnual.textContent = `$${totalAnnualAll.toFixed(2)}`;
+      
+      // Populate By Location results
+      const byLocationResults = document.getElementById('by-location-results');
+      byLocationResults.innerHTML = '<h3>Results By Location</h3>';
+      
+      // Group by location
+      const locationGroups = {};
+      
+      dayData.forEach(day => {
+        const location = day.location;
+        if (!locationGroups[location]) {
+          locationGroups[location] = {
+            totalAppointments: 0,
+            totalCost: 0,
+            totalProRev: 0,
+            shortcutNet: 0,
+            days: []
+          };
         }
         
-        // Store current calculation
-        currentCalculation = {
-          type: 'multi',
-          clientName,
-          days: dayData,
-          totalAppts: totalApptsAll,
-          totalCost: totalCostAll,
-          totalProRev: totalProRevAll,
-          shortcutNet: shortcutNetAll,
-          shortcutMargin: shortcutMarginAll,
-          totalAnnual: totalAnnualAll,
-          timestamp: new Date().toISOString()
-        };
+        locationGroups[location].totalAppointments += day.totalAppointments;
+        locationGroups[location].totalCost += day.totalCost;
+        locationGroups[location].totalProRev += day.totalProRev;
+        locationGroups[location].shortcutNet += day.shortcutNet;
+        locationGroups[location].days.push(day.dayLabel || `Day ${day.dayId}`);
+      });
+      
+      for (const location in locationGroups) {
+        const locationData = locationGroups[location];
         
-        // Show proposal button
-        document.querySelector('#multi-day-tab .proposal-actions').style.display = 'block';
-        hideLoading();
-      }, 100);
+        const locationSection = document.createElement('div');
+        locationSection.className = 'location-section';
+        
+        locationSection.innerHTML = `
+          <h4>${location}</h4>
+          <div class="result-card">
+            <h3>Client Details</h3>
+            <div class="result-item">
+              <span class="result-label">Days:</span>
+              <span class="result-value">${locationData.days.join(', ')}</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Total Appointments:</span>
+              <span class="result-value">${locationData.totalAppointments}</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Cost to Customer:</span>
+              <span class="result-value">$${locationData.totalCost.toFixed(2)}</span>
+            </div>
+          </div>
+          <div class="result-card">
+            <h3>Shortcut Details</h3>
+            <div class="result-item">
+              <span class="result-label">Professional Revenue:</span>
+              <span class="result-value">$${locationData.totalProRev.toFixed(2)}</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Shortcut Net:</span>
+              <span class="result-value">$${locationData.shortcutNet.toFixed(2)}</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Profit Margin:</span>
+              <span class="result-value">${(locationData.shortcutNet / locationData.totalCost * 100).toFixed(2)}%</span>
+            </div>
+          </div>
+        `;
+        
+        byLocationResults.appendChild(locationSection);
+      }
+      
+      // Store current calculation
+      currentCalculation = {
+        type: 'multi',
+        clientName,
+        days: dayData,
+        totalAppts: totalApptsAll,
+        totalCost: totalCostAll,
+        totalProRev: totalProRevAll,
+        shortcutNet: shortcutNetAll,
+        shortcutMargin: shortcutMarginAll,
+        totalAnnual: totalAnnualAll,
+        timestamp: new Date().toISOString()
+      };
+      
+      // Show proposal button
+      document.querySelector('#multi-day-tab .proposal-actions').style.display = 'block';
+      
+      // Show summary tab
+      showResultsTab('summary');
     }
     
     function resetMultiDayEvent() {
@@ -2701,203 +2598,199 @@
     }
     
     function generateProposalPreview() {
-      showLoading('Generating proposal...');
-      setTimeout(() => {
-        const clientName = proposalClientName.value;
-        const contactName = proposalContactName.value;
-        const email = proposalEmail.value;
-        const phone = proposalPhone.value;
-        const eventDate = proposalEventDate.value;
-        const eventLocation = proposalEventLocation.value;
-        const notes = proposalNotes.value;
-        
-        if (!clientName || !contactName || !email || !eventDate || !eventLocation) {
-          alert('Please fill in all required fields.');
-          return;
-        }
-        
-        // Format date
-        const formattedDate = new Date(eventDate).toLocaleDateString('en-US', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-        
-        // Generate proposal HTML
-        let proposalHTML = `
-          <div class="proposal-document">
-            <div class="proposal-header">
-              <img src="${clientLogo}" alt="${clientName} Logo" class="client-logo">
-              <h1>Wellness Services Proposal</h1>
-              <p>Prepared for ${clientName}</p>
+      const clientName = proposalClientName.value;
+      const contactName = proposalContactName.value;
+      const email = proposalEmail.value;
+      const phone = proposalPhone.value;
+      const eventDate = proposalEventDate.value;
+      const eventLocation = proposalEventLocation.value;
+      const notes = proposalNotes.value;
+      
+      if (!clientName || !contactName || !email || !eventDate || !eventLocation) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+      
+      // Format date
+      const formattedDate = new Date(eventDate).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      // Generate proposal HTML
+      let proposalHTML = `
+        <div class="proposal-document">
+          <div class="proposal-header">
+            <img src="${clientLogo}" alt="${clientName} Logo" class="client-logo">
+            <h1>Wellness Services Proposal</h1>
+            <p>Prepared for ${clientName}</p>
+          </div>
+          
+          <div class="proposal-info">
+            <div class="proposal-info-item">
+              <span class="proposal-info-label">Client:</span>
+              <span class="proposal-info-value">${clientName}</span>
             </div>
-            
-            <div class="proposal-info">
-              <div class="proposal-info-item">
-                <span class="proposal-info-label">Client:</span>
-                <span class="proposal-info-value">${clientName}</span>
-              </div>
-              <div class="proposal-info-item">
-                <span class="proposal-info-label">Contact Person:</span>
-                <span class="proposal-info-value">${contactName}</span>
-              </div>
-              <div class="proposal-info-item">
-                <span class="proposal-info-label">Email:</span>
-                <span class="proposal-info-value">${email}</span>
-              </div>
-              <div class="proposal-info-item">
-                <span class="proposal-info-label">Phone:</span>
-                <span class="proposal-info-value">${phone || 'N/A'}</span>
-              </div>
-              <div class="proposal-info-item">
-                <span class="proposal-info-label">Event Date:</span>
-                <span class="proposal-info-value">${formattedDate}</span>
-              </div>
-              <div class="proposal-info-item">
-                <span class="proposal-info-label">Event Location:</span>
-                <span class="proposal-info-value">${eventLocation}</span>
-              </div>
+            <div class="proposal-info-item">
+              <span class="proposal-info-label">Contact Person:</span>
+              <span class="proposal-info-value">${contactName}</span>
             </div>
-            
-            <div class="proposal-intro">
-              <h2>Introduction</h2>
-              <p>Thank you for considering Shortcut for your wellness services needs. We are pleased to present this proposal for your upcoming event. Our team of professional wellness providers is dedicated to delivering exceptional service and creating a memorable experience for your team members.</p>
-              <p>Based on the information provided, we have prepared the following proposal tailored to your specific requirements.</p>
+            <div class="proposal-info-item">
+              <span class="proposal-info-label">Email:</span>
+              <span class="proposal-info-value">${email}</span>
             </div>
-            
-            <div class="proposal-details">
-              <h2>Service Details</h2>
+            <div class="proposal-info-item">
+              <span class="proposal-info-label">Phone:</span>
+              <span class="proposal-info-value">${phone || 'N/A'}</span>
+            </div>
+            <div class="proposal-info-item">
+              <span class="proposal-info-label">Event Date:</span>
+              <span class="proposal-info-value">${formattedDate}</span>
+            </div>
+            <div class="proposal-info-item">
+              <span class="proposal-info-label">Event Location:</span>
+              <span class="proposal-info-value">${eventLocation}</span>
+            </div>
+          </div>
+          
+          <div class="proposal-intro">
+            <h2>Introduction</h2>
+            <p>Thank you for considering Shortcut for your wellness services needs. We are pleased to present this proposal for your upcoming event. Our team of professional wellness providers is dedicated to delivering exceptional service and creating a memorable experience for your team members.</p>
+            <p>Based on the information provided, we have prepared the following proposal tailored to your specific requirements.</p>
+          </div>
+          
+          <div class="proposal-details">
+            <h2>Service Details</h2>
+      `;
+      
+      if (currentCalculation.type === 'single') {
+        const serviceType = currentCalculation.serviceType;
+        const serviceTypeFormatted = serviceType.charAt(0).toUpperCase() + serviceType.slice(1);
+        
+        proposalHTML += `
+          <div class="proposal-service-details">
+            <h3>${serviceTypeFormatted} Services</h3>
+            <div class="service-detail-item">
+              <span class="service-detail-label">Event Duration:</span>
+              <span class="service-detail-value">${currentCalculation.totalHours} hours</span>
+            </div>
+            <div class="service-detail-item">
+              <span class="service-detail-label">Appointment Duration:</span>
+              <span class="service-detail-value">${currentCalculation.appTime} minutes</span>
+            </div>
+            <div class="service-detail-item">
+              <span class="service-detail-label">Number of Professionals:</span>
+              <span class="service-detail-value">${currentCalculation.numPros}</span>
+            </div>
+            <div class="service-detail-item">
+              <span class="service-detail-label">Total Appointments:</span>
+              <span class="service-detail-value">${currentCalculation.totalAppts}</span>
+            </div>
+          </div>
         `;
+      } else {
+        // Multi-day event
+        proposalHTML += `<p>This proposal covers a multi-day/location event with the following details:</p>`;
         
-        if (currentCalculation.type === 'single') {
-          const serviceType = currentCalculation.serviceType;
+        currentCalculation.days.forEach(day => {
+          const serviceType = day.serviceType;
           const serviceTypeFormatted = serviceType.charAt(0).toUpperCase() + serviceType.slice(1);
           
           proposalHTML += `
             <div class="proposal-service-details">
-              <h3>${serviceTypeFormatted} Services</h3>
+              <h3>${day.dayLabel} - ${day.location} (${serviceTypeFormatted})</h3>
               <div class="service-detail-item">
                 <span class="service-detail-label">Event Duration:</span>
-                <span class="service-detail-value">${currentCalculation.totalHours} hours</span>
+                <span class="service-detail-value">${day.totalHours} hours</span>
               </div>
               <div class="service-detail-item">
                 <span class="service-detail-label">Appointment Duration:</span>
-                <span class="service-detail-value">${currentCalculation.appTime} minutes</span>
+                <span class="service-detail-value">${day.appTime} minutes</span>
               </div>
               <div class="service-detail-item">
                 <span class="service-detail-label">Number of Professionals:</span>
-                <span class="service-detail-value">${currentCalculation.numPros}</span>
+                <span class="service-detail-value">${day.numPros}</span>
               </div>
               <div class="service-detail-item">
                 <span class="service-detail-label">Total Appointments:</span>
-                <span class="service-detail-value">${currentCalculation.totalAppts}</span>
+                <span class="service-detail-value">${day.totalAppointments}</span>
               </div>
             </div>
           `;
-        } else {
-          // Multi-day event
-          proposalHTML += `<p>This proposal covers a multi-day/location event with the following details:</p>`;
+        });
+      }
+      
+      proposalHTML += `
+          </div>
           
-          currentCalculation.days.forEach(day => {
-            const serviceType = day.serviceType;
-            const serviceTypeFormatted = serviceType.charAt(0).toUpperCase() + serviceType.slice(1);
-            
-            proposalHTML += `
-              <div class="proposal-service-details">
-                <h3>${day.dayLabel} - ${day.location} (${serviceTypeFormatted})</h3>
-                <div class="service-detail-item">
-                  <span class="service-detail-label">Event Duration:</span>
-                  <span class="service-detail-value">${day.totalHours} hours</span>
-                </div>
-                <div class="service-detail-item">
-                  <span class="service-detail-label">Appointment Duration:</span>
-                  <span class="service-detail-value">${day.appTime} minutes</span>
-                </div>
-                <div class="service-detail-item">
-                  <span class="service-detail-label">Number of Professionals:</span>
-                  <span class="service-detail-value">${day.numPros}</span>
-                </div>
-                <div class="service-detail-item">
-                  <span class="service-detail-label">Total Appointments:</span>
-                  <span class="service-detail-value">${day.totalAppointments}</span>
-                </div>
-              </div>
-            `;
-          });
-        }
-        
+          <div class="proposal-pricing">
+            <h2>Pricing</h2>
+            <div class="pricing-total">
+              <span class="pricing-total-label">Total Investment:</span>
+              <span class="pricing-total-value">$${currentCalculation.totalCost.toFixed(2)}</span>
+            </div>
+          </div>
+          
+          <div class="proposal-terms">
+            <h2>Terms and Conditions</h2>
+            <p>The following terms and conditions apply to this proposal:</p>
+            <ul>
+              <li>A 50% deposit is required to secure the booking.</li>
+              <li>Final payment is due on the day of the event.</li>
+              <li>Cancellations made less than 7 days before the event are subject to a 25% cancellation fee.</li>
+              <li>Shortcut requires a minimum of 2 hours for setup before the event start time.</li>
+              <li>This proposal is valid for 30 days from the date of issue.</li>
+            </ul>
+          </div>
+      `;
+      
+      if (notes) {
         proposalHTML += `
-            </div>
-            
-            <div class="proposal-pricing">
-              <h2>Pricing</h2>
-              <div class="pricing-total">
-                <span class="pricing-total-label">Total Investment:</span>
-                <span class="pricing-total-value">$${currentCalculation.totalCost.toFixed(2)}</span>
-              </div>
-            </div>
-            
-            <div class="proposal-terms">
-              <h2>Terms and Conditions</h2>
-              <p>The following terms and conditions apply to this proposal:</p>
-              <ul>
-                <li>A 50% deposit is required to secure the booking.</li>
-                <li>Final payment is due on the day of the event.</li>
-                <li>Cancellations made less than 7 days before the event are subject to a 25% cancellation fee.</li>
-                <li>Shortcut requires a minimum of 2 hours for setup before the event start time.</li>
-                <li>This proposal is valid for 30 days from the date of issue.</li>
-              </ul>
-            </div>
+          <div class="proposal-notes">
+            <h2>Additional Notes</h2>
+            <p>${notes}</p>
+          </div>
         `;
-        
-        if (notes) {
-          proposalHTML += `
-            <div class="proposal-notes">
-              <h2>Additional Notes</h2>
-              <p>${notes}</p>
-            </div>
-          `;
-        }
-        
-        proposalHTML += `
-            <div class="proposal-signature">
-              <div class="signature-block">
-                <div class="signature-line">
-                  <div class="signature-name">Shortcut Representative</div>
-                  <div class="signature-date">Date</div>
-                </div>
+      }
+      
+      proposalHTML += `
+          <div class="proposal-signature">
+            <div class="signature-block">
+              <div class="signature-line">
+                <div class="signature-name">Shortcut Representative</div>
+                <div class="signature-date">Date</div>
               </div>
-              <div class="signature-block">
-                <div class="signature-line">
-                  <div class="signature-name">${clientName} Representative</div>
-                  <div class="signature-date">Date</div>
-                </div>
+            </div>
+            <div class="signature-block">
+              <div class="signature-line">
+                <div class="signature-name">${clientName} Representative</div>
+                <div class="signature-date">Date</div>
               </div>
             </div>
           </div>
-        `;
+        </div>
+      `;
+      
+      // Display proposal preview
+      proposalPreviewContainer.innerHTML = proposalHTML;
+      
+      // Show client logo if uploaded
+      if (clientLogoPreview.style.display === 'block') {
+        const clientLogoImg = document.createElement('img');
+        clientLogoImg.src = clientLogoPreview.src;
+        clientLogoImg.alt = `${clientName} Logo`;
+        clientLogoImg.style.maxWidth = '150px';
+        clientLogoImg.style.marginBottom = '15px';
         
-        // Display proposal preview
-        proposalPreviewContainer.innerHTML = proposalHTML;
-        
-        // Show client logo if uploaded
-        if (clientLogoPreview.style.display === 'block') {
-          const clientLogoImg = document.createElement('img');
-          clientLogoImg.src = clientLogoPreview.src;
-          clientLogoImg.alt = `${clientName} Logo`;
-          clientLogoImg.style.maxWidth = '150px';
-          clientLogoImg.style.marginBottom = '15px';
-          
-          const proposalHeader = proposalPreviewContainer.querySelector('.proposal-header');
-          proposalHeader.insertBefore(clientLogoImg, proposalHeader.querySelector('h1'));
-        }
-        
-        // Hide proposal form modal and show preview modal
-        proposalModal.style.display = 'none';
-        proposalPreviewModal.style.display = 'block';
-        hideLoading();
-      }, 100);
+        const proposalHeader = proposalPreviewContainer.querySelector('.proposal-header');
+        proposalHeader.insertBefore(clientLogoImg, proposalHeader.querySelector('h1'));
+      }
+      
+      // Hide proposal form modal and show preview modal
+      proposalModal.style.display = 'none';
+      proposalPreviewModal.style.display = 'block';
     }
     
     function showPresetTab(tabName) {
@@ -3235,32 +3128,6 @@
         }
       }
     });
-
-    // Add this function to handle reset
-    function resetSingleEvent() {
-      // Reset form inputs
-      document.getElementById('clientName').value = '';
-      document.getElementById('serviceType').value = 'massage';
-      document.getElementById('totalHours').value = '';
-      document.getElementById('appTime').value = '';
-      document.getElementById('numPros').value = '';
-      document.getElementById('proHourly').value = '';
-      document.getElementById('hourlyRate').value = '';
-      document.getElementById('earlyArrival').value = '';
-      document.getElementById('retouchingCost').value = '';
-      document.getElementById('discountPercent').value = '';
-      document.getElementById('eventsPerYear').value = '';
-      
-      // Reset results display
-      document.getElementById('results-container').style.display = 'none';
-      document.querySelector('.proposal-actions').style.display = 'none';
-    }
   </script>
-
-  <!-- Add this before the closing </body> tag -->
-  <div class="loading-spinner" id="loading-spinner">
-    <div class="spinner"></div>
-    <div class="loading-text">Calculating...</div>
-  </div>
 </body>
 </html>
