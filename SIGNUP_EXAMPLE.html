@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortcut Booking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Design System Variables from DESIGN_SYSTEM.md */
+        :root {
+            --primary-color: #FF5050;       /* Red */
+            --secondary-color: #003C5E;     /* Deep Blue */
+            --accent-color-1: #FFEB69;      /* Yellow */
+            --accent-color-2: #9EFAFF;      /* Light Blue/Teal */
+            --accent-color-3: #F9CDFF;      /* Light Purple */
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --white: #ffffff;
+            --border-radius: 24px;
+            --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            line-height: 1.6;
+            color: var(--secondary-color);
+            background-color: var(--light-gray);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background: var(--white);
+            max-width: 1200px;
+            width: 100%;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        .header {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            margin-bottom: 40px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo {
+            height: 40px;
+            margin: 0;
+            filter: none;
+        }
+
+        .header h1 {
+            display: none;
+        }
+
+        .header-text {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: var(--secondary-color);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--dark-gray);
+            font-size: 18px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .note {
+            background-color: var(--accent-color-2);
+            color: var(--secondary-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 40px;
+            text-align: center;
+            font-size: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .pro-section {
+            margin-bottom: 40px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            transition: var(--transition);
+        }
+
+        .pro-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .pro-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--medium-gray);
+        }
+
+        .pro-image {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--border-radius);
+            margin-right: 20px;
+            object-fit: cover;
+            box-shadow: var(--shadow);
+        }
+
+        .pro-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        .time-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-left: 100px;
+        }
+
+        .time-slot {
+            padding: 15px 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            background-color: var(--light-gray);
+            color: var(--secondary-color);
+            box-shadow: var(--shadow);
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .time-slot:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            background-color: var(--accent-color-2);
+        }
+
+        .time-slot.selected {
+            background-color: var(--primary-color);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid var(--medium-gray);
+        }
+
+        .nav-link {
+            padding: 15px 30px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: var(--transition);
+            text-decoration: none;
+            color: var(--secondary-color);
+            background-color: var(--accent-color-1);
+            box-shadow: var(--shadow);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .nav-link.primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+
+            .logo {
+                height: 50px;
+                margin-bottom: 15px;
+            }
+
+            .header-text {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+
+            .description {
+                font-size: 16px;
+                margin-bottom: 30px;
+            }
+
+            .time-slots {
+                margin-left: 0;
+                gap: 10px;
+            }
+
+            .time-slot {
+                padding: 12px 20px;
+                font-size: 14px;
+                min-width: calc(50% - 5px);
+            }
+
+            .pro-header {
+                flex-direction: column;
+                text-align: center;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+            }
+
+            .pro-image {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            .pro-name {
+                font-size: 20px;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+                margin-top: 40px;
+                padding-top: 20px;
+            }
+
+            .nav-link {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="/public/assets/shortcut-logo.svg" alt="Shortcut Logo" class="logo">
+            <h1>Shortcut Booking</h1>
+        </header>
+
+        <h2 class="header-text">The Shortcut Team is here to make you look and feel great with hair services!</h2>
+        
+        <p class="description">
+            Choose from the following Hair services for this event: Quick Clean Up, Blowout, Women's Styling, Beard Trim, Short Haircut, Long Haircut.
+        </p>
+        
+        <div class="note">
+            Please note that individual Pros may only offer certain services. Start by selecting an available timeslot below.
+        </div>
+
+        <div class="pro-section">
+            <div class="pro-header">
+                <img src="https://placekitten.com/160/160" alt="Allison Watson" class="pro-image">
+                <h2 class="pro-name">Allison Watson</h2>
+            </div>
+            <div class="time-slots">
+                <div class="time-slot">11:30 AM</div>
+                <div class="time-slot">12:00 PM</div>
+                <div class="time-slot">12:30 PM</div>
+                <div class="time-slot">1:00 PM</div>
+                <div class="time-slot">2:30 PM</div>
+                <div class="time-slot">3:00 PM</div>
+                <div class="time-slot">3:30 PM</div>
+                <div class="time-slot">4:00 PM</div>
+                <div class="time-slot">4:30 PM</div>
+            </div>
+        </div>
+
+        <div class="pro-section">
+            <div class="pro-header">
+                <img src="https://placekitten.com/161/161" alt="Devan Mclemore" class="pro-image">
+                <h2 class="pro-name">Devan Mclemore</h2>
+            </div>
+            <div class="time-slots">
+                <div class="time-slot">11:30 AM</div>
+                <div class="time-slot">12:00 PM</div>
+                <div class="time-slot">12:30 PM</div>
+                <div class="time-slot">3:00 PM</div>
+                <div class="time-slot">3:30 PM</div>
+                <div class="time-slot">4:00 PM</div>
+                <div class="time-slot">4:30 PM</div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <a href="#" class="nav-link">← Event list</a>
+            <a href="#" class="nav-link primary">View timeslots →</a>
+        </div>
+    </div>
+
+    <script>
+        // Time slot selection
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.addEventListener('click', () => {
+                document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                slot.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortcut Timeslots</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #FF5050;
+            --secondary-color: #003C5E;
+            --accent-color-1: #FFEB69;
+            --accent-color-2: #9EFAFF;
+            --accent-color-3: #F9CDFF;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --white: #ffffff;
+            --border-radius: 8px;
+            --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            line-height: 1.6;
+            color: var(--secondary-color);
+            background-color: var(--secondary-color);
+            min-height: 100vh;
+            padding: 40px 20px;
+            background-image: linear-gradient(to bottom right, var(--secondary-color), #002540);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: var(--white);
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-info {
+            font-size: 18px;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .event-info strong {
+            font-weight: 500;
+            color: var(--accent-color-2);
+        }
+
+        .timeslot-table {
+            background: var(--white);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            background-color: var(--light-gray);
+            padding: 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--medium-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 20px;
+            border-bottom: 1px solid var(--light-gray);
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        tr:hover td {
+            background-color: rgba(158, 250, 255, 0.1);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cancel-btn {
+            padding: 8px 16px;
+            border-radius: 100px;
+            background-color: var(--light-gray);
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            display: inline-block;
+        }
+
+        .cancel-btn:hover {
+            background-color: var(--primary-color);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 80, 80, 0.2);
+        }
+
+        .empty-slot {
+            color: var(--medium-gray);
+            font-style: italic;
+        }
+
+        tr.booked-slot {
+            background-color: rgba(158, 250, 255, 0.05);
+        }
+
+        tr.booked-slot td {
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .event-info {
+                font-size: 16px;
+                padding: 0 20px;
+            }
+
+            th, td {
+                padding: 15px 12px;
+                font-size: 14px;
+            }
+
+            /* Make table scrollable on mobile */
+            .timeslot-table {
+                overflow-x: auto;
+                margin: 0 -10px;
+                padding: 0 10px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                min-width: 600px;
+            }
+
+            .cancel-btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Timeslots</h1>
+            <p class="event-info">
+                Openings and reservations for event: <strong>Trader Monthly Perks (Beta)</strong> on <strong>Sat Apr 19 2025</strong>
+            </p>
+        </header>
+
+        <div class="timeslot-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Client</th>
+                        <th>Pro</th>
+                        <th>Service</th>
+                        <th>Cancel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="booked-slot">
+                        <td>11:00 AM</td>
+                        <td>Zac Alexander</td>
+                        <td>Allison Watson</td>
+                        <td>Quick Clean Up</td>
+                        <td><a href="#" class="cancel-btn">Cancel</a></td>
+                    </tr>
+                    <tr class="booked-slot">
+                        <td>11:00 AM</td>
+                        <td>Andrew Kelly</td>
+                        <td>Devan Mclemore</td>
+                        <td>Quick Clean Up</td>
+                        <td><a href="#" class="cancel-btn">Cancel</a></td>
+                    </tr>
+                    <tr>
+                        <td>11:30 AM</td>
+                        <td class="empty-slot">—</td>
+                        <td>Allison Watson</td>
+                        <td class="empty-slot">—</td>
+                        <td class="empty-slot">—</td>
+                    </tr>
+                    <tr>
+                        <td>11:30 AM</td>
+                        <td class="empty-slot">—</td>
+                        <td>Devan Mclemore</td>
+                        <td class="empty-slot">—</td>
+                        <td class="empty-slot">—</td>
+                    </tr>
+                    <tr>
+                        <td>12:00 PM</td>
+                        <td class="empty-slot">—</td>
+                        <td>Allison Watson</td>
+                        <td class="empty-slot">—</td>
+                        <td class="empty-slot">—</td>
+                    </tr>
+                    <tr>
+                        <td>12:00 PM</td>
+                        <td class="empty-slot">—</td>
+                        <td>Devan Mclemore</td>
+                        <td class="empty-slot">—</td>
+                        <td class="empty-slot">—</td>
+                    </tr>
+                    <tr>
+                        <td>12:30 PM</td>
+                        <td class="empty-slot">—</td>
+                        <td>Allison Watson</td>
+                        <td class="empty-slot">—</td>
+                        <td class="empty-slot">—</td>
+                    </tr>
+                    <tr>
+                        <td>12:30 PM</td>
+                        <td class="empty-slot">—</td>
+                        <td>Devan Mclemore</td>
+                        <td class="empty-slot">—</td>
+                        <td class="empty-slot">—</td>
+                    </tr>
+                    <tr>
+                        <td>1:00 PM</td>
+                        <td class="empty-slot">—</td>
+                        <td>Allison Watson</td>
+                        <td class="empty-slot">—</td>
+                        <td class="empty-slot">—</td>
+                    </tr>
+                    <tr>
+                        <td>1:00 PM</td>
+                        <td>Patrick Lavan</td>
+                        <td>Devan Mclemore</td>
+                        <td>Quick Clean Up</td>
+                        <td><a href="#" class="cancel-btn">Cancel</a></td>
+                    </tr>
+                    <tr>
+                        <td>2:30 PM</td>
+                        <td class="empty-slot">—</td>
+                        <td>Allison Watson</td>
+                        <td class="empty-slot">—</td>
+                        <td class="empty-slot">—</td>
+                    </tr>
+                    <tr>
+                        <td>2:30 PM</td>
+                        <td>Michael Chan</td>
+                        <td>Devan Mclemore</td>
+                        <td>Short Haircut</td>
+                        <td><a href="#" class="cancel-btn">Cancel</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html> 
