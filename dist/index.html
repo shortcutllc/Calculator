@@ -1180,7 +1180,7 @@
     <div class="password-container">
         <img src="assets/shortcut-logo-blue.svg" alt="Shortcut Logo">
         <h2>Employee Access Only</h2>
-        <form id="password-form" onsubmit="return checkPassword(event)">
+        <form id="password-form">
             <div class="password-field">
                 <input type="password" 
                        id="password-input" 
@@ -1188,9 +1188,11 @@
                        placeholder="Enter password"
                        autocomplete="current-password"
                        required>
-                <div class="password-error" id="password-error"></div>
+                <button type="submit" class="btn primary-button" style="padding: 12px 24px; font-size: 16px; font-weight: 500; border-radius: 8px; background-color: var(--primary-color); color: white; border: none; cursor: pointer; transition: var(--transition);">Enter</button>
             </div>
-            <button type="submit">Enter</button>
+            <div id="password-error" class="error-message" style="display: none;">
+                Incorrect password. Please try again.
+            </div>
         </form>
     </div>
   </div>
