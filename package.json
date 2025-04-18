@@ -2,10 +2,9 @@
   "name": "calculator",
   "version": "1.0.0",
   "description": "Calculator web application",
-  "main": "public/main.js",
+  "main": "public/index.html",
   "scripts": {
-    "build": "cp -r public/* dist/",
-    "start": "bash start_server.sh"
+    "start": "http-server public -p 8080"
   },
   "dependencies": {
     "sharp": "^0.32.6"
