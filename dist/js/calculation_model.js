@@ -5,16 +5,6 @@
  * with support for multi-day events, multiple locations, and history feature.
  */
 
-// Constants for validation and configuration
-const VALID_SERVICE_TYPES = ['massage/spa', 'hair/nails', 'headshot'];
-const DEFAULT_MARGIN = {
-    'headshot': 20, // 20% margin for headshots
-    'massage/spa': 25, // 25% margin for massage/spa
-    'hair/nails': 25  // 25% margin for hair/nails
-};
-const CALCULATION_PRECISION = 2; // Number of decimal places for calculations
-const CACHE_DURATION = 5 * 60 * 1000; // Cache duration in milliseconds (5 minutes)
-
 // Add this before the class definition
 const PRESET_CONFIGURATIONS = {
     'massage/spa': {
@@ -113,89 +103,6 @@ const PRESET_CONFIGURATIONS = {
 };
 
 class PricingCalculator {
-    constructor() {
-        this.calculationCache = new Map();
-        this.customServiceTypes = new Map();
-    }
-
-    /**
-     * Validates input parameters for calculations
-     * @private
-     * @param {Object} params - Input parameters to validate
-     * @throws {Error} If validation fails
-     */
-    _validateParams(params) {
-        const {
-            serviceType,
-            totalHours,
-            appTime,
-            proHourly,
-            numPros,
-            hourlyRate,
-        } = params;
-
-        if (!serviceType || (!VALID_SERVICE_TYPES.includes(serviceType) && !this.customServiceTypes.has(serviceType))) {
-            throw new Error(`Invalid service type: ${serviceType}`);
-        }
-
-        if (!Number.isFinite(totalHours) || totalHours <= 0) {
-            throw new Error('Total hours must be a positive number');
-        }
-
-        if (!Number.isFinite(appTime) || appTime <= 0) {
-            throw new Error('Appointment time must be a positive number');
-        }
-
-        if (!Number.isFinite(proHourly) || proHourly <= 0) {
-            throw new Error('Professional hourly rate must be a positive number');
-        }
-
-        if (!Number.isInteger(numPros) || numPros <= 0) {
-            throw new Error('Number of professionals must be a positive integer');
-        }
-
-        if (serviceType !== 'headshot' && (!Number.isFinite(hourlyRate) || hourlyRate <= 0)) {
-            throw new Error('Hourly rate must be a positive number');
-        }
-    }
-
-    /**
-     * Generates a cache key for the given parameters
-     * @private
-     * @param {Object} params - Calculation parameters
-     * @returns {string} Cache key
-     */
-    _generateCacheKey(params) {
-        return JSON.stringify(params);
-    }
-
-    /**
-     * Rounds a number to the specified precision
-     * @private
-     * @param {number} value - Value to round
-     * @returns {number} Rounded value
-     */
-    _round(value) {
-        return Number(Math.round(value + 'e' + CALCULATION_PRECISION) + 'e-' + CALCULATION_PRECISION);
-    }
-
-    /**
-     * Adds a custom service type with specific margin and validation rules
-     * @param {string} serviceType - Name of the custom service
-     * @param {Object} config - Configuration for the custom service
-     */
-    addCustomServiceType(serviceType, config) {
-        if (VALID_SERVICE_TYPES.includes(serviceType)) {
-            throw new Error(`Cannot override built-in service type: ${serviceType}`);
-        }
-
-        this.customServiceTypes.set(serviceType, {
-            margin: config.margin || 25,
-            requiresRetouching: config.requiresRetouching || false,
-            ...config
-        });
-    }
-
     /**
      * Calculate pricing details based on input parameters for multiple days and locations
      * 
@@ -286,20 +193,9 @@ class PricingCalculator {
      * @param {string} params.day - Day identifier (e.g., "Day 1", "Monday")
      * @param {string} params.location - Location identifier (e.g., "HQ", "Downtown Office")
      * @returns {Object} Calculated pricing details
-     * @throws {Error} If validation fails
      */
     calculate(params) {
-        // Validate input parameters
-        this._validateParams(params);
-
-        // Check cache first
-        const cacheKey = this._generateCacheKey(params);
-        const cachedResult = this.calculationCache.get(cacheKey);
-        if (cachedResult && (Date.now() - cachedResult.timestamp) < CACHE_DURATION) {
-            return cachedResult.result;
-        }
-
-        // Extract parameters with improved defaults
+        // Extract parameters
         const {
             serviceType,
             totalHours,
@@ -308,87 +204,103 @@ class PricingCalculator {
             numPros,
             hourlyRate,
             earlyArrival = 0,
-            retouchingCost = 40,
-            discountPercent = 0,
-            totalAppts: specifiedTotalAppts = null,
+            retouchingCost = 40, // Default retouching cost for headshots
+            discountPercent = 0, // Default discount percentage
+            totalAppts: specifiedTotalAppts = null, // Allow direct specification of total appointments
             day = null,
             location = null
         } = params;
 
-        // Calculate appointments with improved precision
-        const apptsPerProPerHour = this._round(60 / appTime);
-        const apptsPerHour = this._round(numPros * apptsPerProPerHour);
+        // Calculate appointments per professional per hour based on appointment duration
+        const apptsPerProPerHour = Math.floor(60 / appTime);
+        
+        // Calculate total appointments per hour across all professionals
+        const apptsPerHour = numPros * apptsPerProPerHour;
+        
+        // Use specified total appointments if provided, otherwise calculate
         const totalAppts = specifiedTotalAppts !== null ? 
             specifiedTotalAppts : 
-            this._round(apptsPerHour * totalHours);
-
+            apptsPerHour * totalHours;
+        
         let totalProRev, totalCost, shortcutNet, shortcutMargin;
-
-        // Get margin based on service type (including custom services)
-        const margin = this.customServiceTypes.has(serviceType) ?
-            this.customServiceTypes.get(serviceType).margin :
-            DEFAULT_MARGIN[serviceType];
-
-        if (serviceType === 'headshot' || (this.customServiceTypes.has(serviceType) && this.customServiceTypes.get(serviceType).requiresRetouching)) {
-            // Calculate for services requiring retouching
-            totalProRev = this._round(proHourly * totalHours * numPros);
-            const retouchingTotal = this._round(retouchingCost * totalAppts);
-            totalCost = this._round(totalProRev + retouchingTotal);
-            shortcutMargin = margin;
-            shortcutNet = this._round(totalCost * (margin / 100));
-            totalCost = this._round(totalProRev / (1 - margin / 100));
+        
+        if (serviceType === 'headshot') {
+            // For headshot services
+            // Calculate total revenue paid to photographers
+            totalProRev = (proHourly * totalHours * numPros);
+            
+            // Calculate retouching cost
+            const retouchingTotal = retouchingCost * totalAppts;
+            
+            // Calculate total cost charged to the customer
+            totalCost = totalProRev + retouchingTotal;
+            
+            // For headshot services, margin is fixed at 20%
+            shortcutMargin = 20;
+            
+            // Calculate Shortcut's net profit based on fixed 20% margin
+            shortcutNet = totalCost * 0.2;
+            
+            // Adjust total cost to achieve the 20% margin
+            totalCost = totalProRev / 0.8;
         } else {
-            // Calculate for standard services
-            totalProRev = this._round((proHourly * totalHours * numPros) + earlyArrival);
-            totalCost = this._round((hourlyRate * totalHours * numPros) + earlyArrival);
-            shortcutNet = this._round(totalCost - totalProRev);
-            shortcutMargin = this._round((shortcutNet / totalCost) * 100);
+            // For massage/spa and hair/nails services
+            // Calculate total revenue paid to professionals
+            // Base pay (hourly rate × hours × number of pros) + early arrival fee
+            totalProRev = (proHourly * totalHours * numPros) + earlyArrival;
+            
+            // Calculate total cost charged to the customer
+            // Customer hourly rate × number of pros × total hours
+            totalCost = hourlyRate * numPros * totalHours;
+            
+            // Calculate Shortcut's net profit
+            shortcutNet = totalCost - totalProRev;
+            
+            // Calculate profit margin percentage
+            shortcutMargin = (shortcutNet / totalCost) * 100;
         }
-
+        
         // Apply discount if specified
         if (discountPercent > 0) {
-            const discountAmount = this._round(totalCost * (discountPercent / 100));
-            totalCost = this._round(totalCost - discountAmount);
+            const discountAmount = totalCost * (discountPercent / 100);
+            totalCost -= discountAmount;
             
-            if (serviceType === 'headshot' || (this.customServiceTypes.has(serviceType) && this.customServiceTypes.get(serviceType).requiresRetouching)) {
-                shortcutNet = this._round(totalCost * (margin / 100));
+            // Recalculate net profit and margin after discount
+            if (serviceType === 'headshot') {
+                // For headshot, maintain 20% margin
+                shortcutNet = totalCost * 0.2;
             } else {
-                shortcutNet = this._round(totalCost - totalProRev);
-                shortcutMargin = this._round((shortcutNet / totalCost) * 100);
+                // For other services, recalculate net profit
+                shortcutNet = totalCost - totalProRev;
+                shortcutMargin = (shortcutNet / totalCost) * 100;
             }
         }
-
-        // Calculate annual revenue
+        
+        // Calculate annual revenue based on events per year
+        // Ensure eventsPerYear is a valid number, defaulting to 12 if not
         const eventsPerYear = typeof params.eventsPerYear === 'number' && !isNaN(params.eventsPerYear) ? params.eventsPerYear : 12;
-        const totalAnnual = this._round(totalCost * eventsPerYear);
-
-        // Prepare result
-        const result = {
-            apptsPerProPerHour: this._round(apptsPerProPerHour),
-            apptsPerHour: this._round(apptsPerHour),
+        const totalAnnual = totalCost * eventsPerYear;
+        
+        // Return calculated values
+        return {
+            apptsPerProPerHour,
+            apptsPerHour,
             totalAppts,
-            totalProRev: this._round(totalProRev),
-            totalCost: this._round(totalCost),
-            shortcutNet: this._round(shortcutNet),
-            shortcutMargin: this._round(shortcutMargin),
-            totalAnnual: this._round(totalAnnual),
+            totalProRev,
+            totalCost,
+            shortcutNet,
+            shortcutMargin,
+            totalAnnual,
             serviceType,
             totalHours,
             day,
             location
         };
-
-        // Cache the result
-        this.calculationCache.set(cacheKey, {
-            result,
-            timestamp: Date.now()
-        });
-
-        return result;
     }
 
     /**
-     * Format currency values with improved precision
+     * Format currency values
+     * 
      * @param {number} value - Value to format as currency
      * @returns {string} Formatted currency string
      */
@@ -396,31 +308,24 @@ class PricingCalculator {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
-            minimumFractionDigits: CALCULATION_PRECISION,
-            maximumFractionDigits: CALCULATION_PRECISION
+            minimumFractionDigits: 2
         }).format(value);
     }
 
     /**
-     * Format percentage values with improved precision
+     * Format percentage values
+     * 
      * @param {number} value - Value to format as percentage
      * @returns {string} Formatted percentage string
      */
     formatPercentage(value) {
         return new Intl.NumberFormat('en-US', {
             style: 'percent',
-            minimumFractionDigits: 1,
-            maximumFractionDigits: 1
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
         }).format(value / 100);
     }
-
-    /**
-     * Clear the calculation cache
-     */
-    clearCache() {
-        this.calculationCache.clear();
-    }
-
+    
     /**
      * Get preset configurations based on appointment counts
      * 
