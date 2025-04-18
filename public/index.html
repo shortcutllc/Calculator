@@ -1218,6 +1218,7 @@
       padding: 15px;
       background-color: var(--light-gray);
       border-radius: var(--border-radius);
+      margin-top: 20px;
     }
 
     .client-name-group {
@@ -1302,15 +1303,16 @@
       </div>
 
       <div id="single-event-tab" class="tab-content" style="display: none;">
+        <button class="back-btn">Back to Main Menu</button>
         <div class="calculator-header">
           <div class="client-name-group">
             <label for="clientName">Client Name:</label>
             <input type="text" id="clientName" class="form-control">
           </div>
           <div class="calculator-actions">
-            <button id="calculate-btn" class="btn btn-primary" onclick="calculateSingleEvent()">Calculate</button>
+            <button id="calculate-btn" class="btn btn-primary">Calculate</button>
             <button id="save-draft-btn" class="btn btn-secondary">Save as Draft</button>
-            <button id="reset-btn" class="btn btn-neutral" onclick="resetSingleEvent()">Reset</button>
+            <button id="reset-btn" class="btn btn-neutral">Reset</button>
           </div>
         </div>
         <div class="calculator-container">
@@ -1386,7 +1388,7 @@
 
           <div class="results-section">
             <h2>Calculation Results</h2>
-            <div id="results-container">
+            <div id="results-container" style="display: none;">
               <div class="result-card">
                 <h3>Client Details</h3>
                 <div class="result-item">
