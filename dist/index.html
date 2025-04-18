@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shortcut Wellness Calculator</title>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <!-- Preload fonts -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" as="style">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap">
+  </noscript>
   <style>
     /* Base Styles */
     :root {
@@ -2984,9 +2986,6 @@
     
     // Generate shareable proposal
     function generateShareableProposal() {
-      // Generate random password
-      const accessCode = generateRandomPassword();
-      
       // Get current calculator state
       const proposalData = {
         clientInfo: {
@@ -3008,15 +3007,24 @@
       const encodedData = btoa(JSON.stringify(proposalData));
       
       // Generate unique ID
-      const proposalId = generateUniqueId();
+      const proposalId = Date.now().toString(36) + Math.random().toString(36).substr(2);
       
-      // Construct URL
-      const shareableUrl = `${window.location.origin}/proposal/${proposalId}#${encodedData}`;
-      
-      // Show sharing modal with generated info
-      proposalLinkInput.value = shareableUrl;
-      proposalPasswordInput.value = accessCode;
-      shareProposalModal.style.display = 'block';
+      // Store in localStorage
+      try {
+        const proposals = JSON.parse(localStorage.getItem('proposals') || '{}');
+        proposals[proposalId] = proposalData;
+        localStorage.setItem('proposals', JSON.stringify(proposals));
+        
+        // Construct URL with query parameter
+        const shareableUrl = `${window.location.origin}?proposal=${proposalId}`;
+        
+        // Show sharing modal with generated info
+        proposalLinkInput.value = shareableUrl;
+        shareProposalModal.style.display = 'block';
+      } catch (error) {
+        console.error('Error generating shareable link:', error);
+        alert('There was an error generating the shareable link. Please try again.');
+      }
     }
     
     // Copy text to clipboard
@@ -3062,7 +3070,7 @@
     copyButtons.forEach(button => {
       button.addEventListener('click', async () => {
         const type = button.getAttribute('data-copy');
-        const text = type === 'link' ? proposalLinkInput.value : proposalPasswordInput.value;
+        const text = proposalLinkInput.value;
         
         if (await copyToClipboard(text)) {
           showCopiedTooltip(button);
@@ -3071,7 +3079,7 @@
     });
     
     copyAllBtn.addEventListener('click', async () => {
-      const text = `Proposal Link: ${proposalLinkInput.value}\nAccess Code: ${proposalPasswordInput.value}`;
+      const text = `Proposal Link: ${proposalLinkInput.value}`;
       
       if (await copyToClipboard(text)) {
         showCopiedTooltip(copyAllBtn);
@@ -3082,6 +3090,42 @@
     window.addEventListener('click', (e) => {
       if (e.target === shareProposalModal) {
         shareProposalModal.style.display = 'none';
+      }
+    });
+    
+    // Check for proposal ID in URL on load
+    window.addEventListener('load', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const proposalId = urlParams.get('proposal');
+      
+      if (proposalId) {
+        try {
+          const proposals = JSON.parse(localStorage.getItem('proposals') || '{}');
+          const proposalData = proposals[proposalId];
+          
+          if (proposalData) {
+            // Populate form with proposal data
+            const state = proposalData.calculatorState;
+            document.getElementById('serviceType').value = state.serviceType;
+            document.getElementById('totalHours').value = state.totalHours;
+            document.getElementById('appTime').value = state.appTime;
+            document.getElementById('numPros').value = state.numPros;
+            document.getElementById('proHourly').value = state.proHourly;
+            document.getElementById('hourlyRate').value = state.hourlyRate;
+            document.getElementById('discountPercent').value = state.discountPercent;
+            document.getElementById('eventsPerYear').value = state.eventsPerYear;
+            document.getElementById('clientName').value = proposalData.clientInfo.name;
+            
+            if (state.serviceType === 'headshot') {
+              document.getElementById('retouchingCost').value = state.retouchingCost;
+            }
+            
+            // Trigger calculation
+            calculateTotal();
+          }
+        } catch (error) {
+          console.error('Error loading proposal:', error);
+        }
       }
     });
   </script>
