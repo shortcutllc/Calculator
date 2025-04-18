@@ -1225,7 +1225,19 @@
       </div>
 
       <div class="tab-content" id="single-event-tab" style="display: none;">
-        <button class="back-btn">Back to Main Menu</button>
+        <button class="back-btn" onclick="showWelcomeScreen()">Back to Main Menu</button>
+        <div class="multi-day-controls">
+          <h2>Single Event Configuration</h2>
+          <div class="form-group">
+            <label for="clientName">Client Name:</label>
+            <input type="text" id="clientName" class="form-control" placeholder="Enter client name">
+          </div>
+          <div class="control-buttons">
+            <button id="calculate-btn" class="btn btn-primary" onclick="calculateSingleEvent()">Calculate</button>
+            <button id="save-draft-btn" class="btn btn-tertiary" onclick="saveDraft()">Save as Draft</button>
+            <button id="reset-btn" class="btn btn-neutral" onclick="resetSingleEvent()">Reset</button>
+          </div>
+        </div>
         <div class="calculator-container">
           <div class="input-section">
             <h2>Input Parameters</h2>
