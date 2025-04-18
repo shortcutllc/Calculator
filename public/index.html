@@ -2022,77 +2022,177 @@
     }
     
     function calculateSingleEvent() {
-      const serviceType = serviceTypeSelect.value;
-      const clientName = document.getElementById('clientName').value;
-      const totalHours = parseFloat(totalHoursInput.value);
-      const appTime = parseFloat(appTimeInput.value);
-      const numPros = parseInt(numProsInput.value);
-      const proHourly = parseFloat(proHourlyInput.value);
-      const discountPercent = parseFloat(discountPercentInput.value);
-      const eventsPerYear = parseInt(eventsPerYearInput.value);
-      
-      // Calculate appointments per hour
-      const apptsPerHourPerPro = 60 / appTime;
-      const totalApptsPerHour = apptsPerHourPerPro * numPros;
-      const totalApptsValue = Math.floor(totalHours * totalApptsPerHour);
-      
-      // Calculate costs
-      let totalCostValue = 0;
-      let totalProRevValue = 0;
-      
-      if (serviceType === 'headshot') {
-        const retouchingCost = parseFloat(retouchingCostInput.value);
-        totalProRevValue = totalHours * numPros * proHourly;
-        totalCostValue = totalProRevValue + (totalApptsValue * retouchingCost);
-      } else {
-        const hourlyRate = parseFloat(hourlyRateInput.value);
-        const earlyArrivalBase = parseFloat(earlyArrivalInput.value); // Base rate per pro
-        const totalEarlyArrival = earlyArrivalBase * numPros; // Total early arrival bonus
-        totalProRevValue = (totalHours * numPros * proHourly) + totalEarlyArrival;
-        totalCostValue = (totalHours * hourlyRate * numPros);
-      }
-      
-      // Apply discount
-      if (discountPercent > 0) {
-        totalCostValue = totalCostValue * (1 - (discountPercent / 100));
-      }
-      
-      // Calculate Shortcut profit
-      const shortcutNetValue = totalCostValue - totalProRevValue;
-      const shortcutMarginValue = (shortcutNetValue / totalCostValue) * 100;
-      const totalAnnualValue = totalCostValue * eventsPerYear;
-      
-      // Update results - Remove decimal points from non-monetary values
-      totalHoursResult.textContent = `${totalHours} hours`;
-      apptsPerProPerHour.textContent = `${Math.round(apptsPerHourPerPro)}`;
-      apptsPerHour.textContent = `${Math.round(totalApptsPerHour)}`;
-      totalAppts.textContent = `${totalApptsValue}`;
-      totalCost.textContent = `$${totalCostValue.toFixed(2)}`;
-      totalProRev.textContent = `$${totalProRevValue.toFixed(2)}`;
-      shortcutNet.textContent = `$${shortcutNetValue.toFixed(2)}`;
-      shortcutMargin.textContent = `${shortcutMarginValue.toFixed(2)}%`;
-      totalAnnual.textContent = `$${totalAnnualValue.toFixed(2)}`;
-      
-      // Store current calculation
-      currentCalculation = {
-        type: 'single',
-        clientName,
-        serviceType,
-        totalHours,
-        appTime,
-        numPros,
-        totalAppts: totalApptsValue,
-        totalCost: totalCostValue,
-        totalProRev: totalProRevValue,
-        shortcutNet: shortcutNetValue,
-        shortcutMargin: shortcutMarginValue,
-        totalAnnual: totalAnnualValue,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Show proposal button
-      document.querySelector('.proposal-actions').style.display = 'block';
+      showLoading('Calculating single event...');
+      setTimeout(() => {
+        const serviceType = serviceTypeSelect.value;
+        const clientName = document.getElementById('clientName').value;
+        const totalHours = parseFloat(totalHoursInput.value);
+        const appTime = parseFloat(appTimeInput.value);
+        const numPros = parseInt(numProsInput.value);
+        const proHourly = parseFloat(proHourlyInput.value);
+        const discountPercent = parseFloat(discountPercentInput.value);
+        const eventsPerYear = parseInt(eventsPerYearInput.value);
+        
+        // Calculate appointments per hour
+        const apptsPerHourPerPro = 60 / appTime;
+        const totalApptsPerHour = apptsPerHourPerPro * numPros;
+        const totalApptsValue = Math.floor(totalHours * totalApptsPerHour);
+        
+        // Calculate costs
+        let totalCostValue = 0;
+        let totalProRevValue = 0;
+        
+        if (serviceType === 'headshot') {
+          const retouchingCost = parseFloat(retouchingCostInput.value);
+          totalProRevValue = totalHours * numPros * proHourly;
+          totalCostValue = totalProRevValue + (totalApptsValue * retouchingCost);
+        } else {
+          const hourlyRate = parseFloat(hourlyRateInput.value);
+          const earlyArrivalBase = parseFloat(earlyArrivalInput.value); // Base rate per pro
+          const totalEarlyArrival = earlyArrivalBase * numPros; // Total early arrival bonus
+          totalProRevValue = (totalHours * numPros * proHourly) + totalEarlyArrival;
+          totalCostValue = (totalHours * hourlyRate * numPros);
+        }
+        
+        // Apply discount
+        if (discountPercent > 0) {
+          totalCostValue = totalCostValue * (1 - (discountPercent / 100));
+        }
+        
+        // Calculate Shortcut profit
+        const shortcutNetValue = totalCostValue - totalProRevValue;
+        const shortcutMarginValue = (shortcutNetValue / totalCostValue) * 100;
+        const totalAnnualValue = totalCostValue * eventsPerYear;
+        
+        // Update results - Remove decimal points from non-monetary values
+        totalHoursResult.textContent = `${totalHours} hours`;
+        apptsPerProPerHour.textContent = `${Math.round(apptsPerHourPerPro)}`;
+        apptsPerHour.textContent = `${Math.round(totalApptsPerHour)}`;
+        totalAppts.textContent = `${totalApptsValue}`;
+        totalCost.textContent = `$${totalCostValue.toFixed(2)}`;
+        totalProRev.textContent = `$${totalProRevValue.toFixed(2)}`;
+        shortcutNet.textContent = `$${shortcutNetValue.toFixed(2)}`;
+        shortcutMargin.textContent = `${shortcutMarginValue.toFixed(2)}%`;
+        totalAnnual.textContent = `$${totalAnnualValue.toFixed(2)}`;
+        
+        // Store current calculation
+        currentCalculation = {
+          type: 'single',
+          clientName,
+          serviceType,
+          totalHours,
+          appTime,
+          numPros,
+          totalAppts: totalApptsValue,
+          totalCost: totalCostValue,
+          totalProRev: totalProRevValue,
+          shortcutNet: shortcutNetValue,
+          shortcutMargin: shortcutMarginValue,
+          totalAnnual: totalAnnualValue,
+          timestamp: new Date().toISOString()
+        };
+        
+        // Show proposal button
+        document.querySelector('.proposal-actions').style.display = 'block';
+        hideLoading();
+      }, 100);
     }
+
+    function resetSingleEvent() {
+      // Reset input fields
+      document.getElementById('clientName').value = '';
+      document.getElementById('serviceType').value = 'massage/spa';
+      document.getElementById('totalHours').value = 4;
+      document.getElementById('appTime').value = 20;
+      document.getElementById('numPros').value = 3;
+      document.getElementById('proHourly').value = 50;
+      document.getElementById('hourlyRate').value = 135;
+      document.getElementById('earlyArrival').value = 25;
+      document.getElementById('discountPercent').value = 0;
+      document.getElementById('eventsPerYear').value = 1;
+      
+      // Update dependent fields
+      updateServiceTypeFields();
+      updateTotalAppointments();
+      
+      // Hide results
+      document.getElementById('results-container').style.display = 'none';
+    }
+    
+    // Multi-Day Event Handlers
+    addDayBtn.addEventListener('click', addNewDay);
+    calculateMultiBtn.addEventListener('click', calculateMultiDayEvent);
+    resetMultiBtn.addEventListener('click', resetMultiDayEvent);
+    
+    // Results Tab Handlers
+    resultsTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.getAttribute('data-results-tab');
+        showResultsTab(tabName);
+      });
+    });
+    
+    // Proposal Handlers
+    generateProposalBtn.addEventListener('click', () => {
+      showProposalModal('single');
+    });
+    
+    generateMultiProposalBtn.addEventListener('click', () => {
+      showProposalModal('multi');
+    });
+    
+    closeModal.addEventListener('click', () => {
+      proposalModal.style.display = 'none';
+    });
+    
+    cancelProposalBtn.addEventListener('click', () => {
+      proposalModal.style.display = 'none';
+    });
+    
+    previewProposalBtn.addEventListener('click', generateProposalPreview);
+    
+    closePreviewModal.addEventListener('click', () => {
+      proposalPreviewModal.style.display = 'none';
+    });
+    
+    closePreviewBtn.addEventListener('click', () => {
+      proposalPreviewModal.style.display = 'none';
+    });
+    
+    editProposalBtn.addEventListener('click', () => {
+      proposalPreviewModal.style.display = 'none';
+      proposalModal.style.display = 'block';
+    });
+    
+    // Client Logo Upload Handler
+    clientLogo.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          clientLogoPreview.src = e.target.result;
+          clientLogoPreview.style.display = 'block';
+          logoPlaceholder.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    
+    // Preset Tab Handlers
+    presetTabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tabName = button.getAttribute('data-preset-tab');
+        showPresetTab(tabName);
+      });
+    });
+    
+    // Preset Button Handlers
+    presetButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const preset = button.getAttribute('data-preset');
+        applyPreset(preset);
+      });
+    });
     
     function addNewDay() {
       dayCounter++;
