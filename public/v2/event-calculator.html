@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortcut Event Calculator</title>
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            text-align: center;
+            padding: 40px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .welcome-screen h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        .welcome-screen p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        .client-input {
+            margin-bottom: 30px;
+        }
+
+        .client-input input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .client-input input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        /* Client Dashboard */
+        .client-dashboard {
+            display: none;
+            padding: 20px;
+        }
+
+        .client-header {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .client-name {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .events-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .add-event-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 20px auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .results-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .result-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .event-details-card {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        .location-section {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .location-header {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #007bff;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .date-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .date-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .service-group {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .service-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 5px 0;
+        }
+
+        .result-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .client-perspective {
+            background: #e3f2fd;
+        }
+
+        .shortcut-perspective {
+            background: #f1f8e9;
+        }
+
+        .event-totals-card {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .totals-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        /* Service Cards */
+        .service-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .service-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .remove-service {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .add-service-btn {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .service-totals {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        /* Service Addition Options */
+        .service-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .service-option-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+
+        .service-option-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .service-option-btn.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        /* Summary Cards */
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .client-summary {
+            background: #e3f2fd;
+        }
+
+        .shortcut-summary {
+            background: #f1f8e9;
+        }
+
+        .date-card {
+            margin-bottom: 30px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .date-header {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Locations Section */
+        .locations-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .locations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .location-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .location-totals {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .event-summary {
+            background: #e3f2fd;
+        }
+
+        /* Location Input Styles */
+        .location-input-group {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .location-input {
+            flex: 1;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .location-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .location-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .location-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .location-name {
+            font-size: 1.4rem;
+            color: #007bff;
+        }
+
+        .location-events {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .add-event-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div class="welcome-screen" id="welcomeScreen">
+            <h1>Shortcut Event Calculator</h1>
+            <p>Start by entering your client's information</p>
+            <div class="client-input">
+                <input type="text" id="clientName" placeholder="Enter client name" autocomplete="off">
+                <div id="locationsInput">
+                    <div class="location-input-group">
+                        <input type="text" class="location-input" placeholder="Enter location name" autocomplete="off">
+                        <button type="button" class="btn btn-secondary" onclick="addLocationInput()">Add Another Location</button>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="startClientDashboard()">Continue</button>
+            </div>
+        </div>
+
+        <!-- Client Dashboard -->
+        <div class="client-dashboard" id="clientDashboard">
+            <div class="client-header">
+                <h2 class="client-name" id="displayClientName"></h2>
+            </div>
+            <div id="locationsContainer">
+                <!-- Location sections will be added here -->
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="dashboard" id="dashboard">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">New Event</h3>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="showEventModal()">Configure</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Configuration Modal -->
+        <div class="modal" id="eventModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Configure Event</h3>
+                    <button class="close-modal" onclick="closeEventModal()">&times;</button>
+                </div>
+                <form id="eventForm">
+                    <div class="form-group">
+                        <label for="eventClientName">Client Name:</label>
+                        <input type="text" id="eventClientName" name="clientName" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDate">Event Date:</label>
+                        <input type="date" id="eventDate" name="eventDate" required>
+                    </div>
+                    
+                    <div id="servicesContainer">
+                        <!-- Service cards will be added here -->
+                    </div>
+
+                    <div class="service-options" id="serviceOptions" style="display: none;">
+                        <button type="button" class="service-option-btn" onclick="addService('same-day')">Add Another Service (Same Day)</button>
+                        <button type="button" class="service-option-btn" onclick="addService('new-day')">Add Another Service (New Day)</button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Event</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <h2>Event Results</h2>
+            <div class="results-grid" id="resultsGrid">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let currentClient = {
+            name: '',
+            locations: [],
+            events: {}  // Store events by location
+        };
+
+        // DOM Elements
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const clientDashboard = document.getElementById('clientDashboard');
+        const clientNameInput = document.getElementById('clientName');
+        const locationsInput = document.getElementById('locationsInput');
+        const displayClientName = document.getElementById('displayClientName');
+        const locationsContainer = document.getElementById('locationsContainer');
+        const dashboard = document.getElementById('dashboard');
+        const eventModal = document.getElementById('eventModal');
+        const eventForm = document.getElementById('eventForm');
+        const resultsSection = document.getElementById('resultsSection');
+        const servicesContainer = document.getElementById('servicesContainer');
+        const eventClientName = document.getElementById('eventClientName');
+        const serviceOptions = document.getElementById('serviceOptions');
+
+        // Event Listeners
+        eventForm.addEventListener('submit', handleEventSubmit);
+
+        function addLocationInput() {
+            const newLocationGroup = document.createElement('div');
+            newLocationGroup.className = 'location-input-group';
+            newLocationGroup.innerHTML = `
+                <input type="text" class="location-input" placeholder="Enter location name" autocomplete="off">
+                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            locationsInput.appendChild(newLocationGroup);
+        }
+
+        function startClientDashboard() {
+            const name = clientNameInput.value.trim();
+            const locationInputs = document.querySelectorAll('.location-input');
+            const locations = Array.from(locationInputs)
+                .map(input => input.value.trim())
+                .filter(location => location !== '');
+            
+            if (!name) {
+                alert('Please enter client name');
+                return;
+            }
+
+            if (locations.length === 0) {
+                alert('Please enter at least one location');
+                return;
+            }
+
+            currentClient.name = name;
+            currentClient.locations = locations;
+            currentClient.events = {};  // Reset events when starting new client
+            displayClientName.textContent = name;
+            
+            welcomeScreen.style.display = 'none';
+            clientDashboard.style.display = 'block';
+            updateLocationsDisplay();
+        }
+
+        function updateLocationsDisplay() {
+            locationsContainer.innerHTML = currentClient.locations.map(location => `
+                <div class="location-section">
+                    <div class="location-header">
+                        <h3 class="location-name">${location}</h3>
+                    </div>
+                    <div class="location-events" id="events-${location}">
+                        ${currentClient.events[location] ? currentClient.events[location].map((event, index) => `
+                            <div class="event-card">
+                                <h4>Event ${index + 1}</h4>
+                                <p>Date: ${event.date}</p>
+                                <p>Services: ${event.services.length}</p>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    <button class="btn btn-primary add-event-btn" onclick="showEventModal('${location}')">Add New Event</button>
+                </div>
+            `).join('');
+        }
+
+        function showEventModal(location) {
+            eventClientName.value = currentClient.name;
+            eventModal.style.display = 'block';
+            
+            // Clear existing services
+            servicesContainer.innerHTML = '';
+            
+            // Add first service with pre-populated location
+            addService('initial', location);
+        }
+
+        function closeEventModal() {
+            eventModal.style.display = 'none';
+        }
+
+        function addService(option = 'initial', location = null) {
+            const serviceId = Date.now();
+            const serviceCard = document.createElement('div');
+            serviceCard.className = 'service-card';
+            serviceCard.id = `service-${serviceId}`;
+            
+            // Get the current date for the first service or new day
+            const currentDate = document.getElementById('eventDate').value;
+            const isNewDay = option === 'new-day';
+            
+            // If this is a new service, get the location from the previous service
+            if (!location && servicesContainer.children.length > 0) {
+                const previousService = servicesContainer.lastElementChild;
+                const previousLocation = previousService.querySelector('select[name="serviceLocation"]').value;
+                location = previousLocation;
+            }
+            
+            serviceCard.innerHTML = `
+                <div class="service-card-header">
+                    <h3>Service ${servicesContainer.children.length + 1}</h3>
+                    <button type="button" class="remove-service" onclick="removeService('${serviceId}')">&times;</button>
+                </div>
+                ${isNewDay ? `
+                    <div class="form-group">
+                        <label for="serviceDate-${serviceId}">Service Date:</label>
+                        <input type="date" id="serviceDate-${serviceId}" name="serviceDate" required>
+                    </div>
+                ` : ''}
+                <div class="form-group">
+                    <label for="serviceLocation-${serviceId}">Location:</label>
+                    <select id="serviceLocation-${serviceId}" name="serviceLocation" required>
+                        ${currentClient.locations.map(loc => 
+                            `<option value="${loc}" ${loc === location ? 'selected' : ''}>${loc}</option>`
+                        ).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="serviceType-${serviceId}">Service Type:</label>
+                    <select id="serviceType-${serviceId}" name="serviceType" required onchange="updateServiceDefaults('${serviceId}')">
+                        <option value="massage">Massage</option>
+                        <option value="facial">Facial</option>
+                        <option value="hair">Hair</option>
+                        <option value="nails">Nails</option>
+                        <option value="headshot">Headshots</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="totalHours-${serviceId}">Total Hours:</label>
+                    <input type="number" id="totalHours-${serviceId}" name="totalHours" min="1" step="0.5" value="4" required onchange="updateAppointmentPreview('${serviceId}')">
+                </div>
+                <div class="form-group">
+                    <label for="appTime-${serviceId}">Appointment Time (minutes):</label>
+                    <input type="number" id="appTime-${serviceId}" name="appTime" min="1" value="20" required onchange="updateAppointmentPreview('${serviceId}')">
+                </div>
+                <div class="form-group">
+                    <label for="numPros-${serviceId}">Number of Professionals:</label>
+                    <input type="number" id="numPros-${serviceId}" name="numPros" min="1" value="2" required onchange="updateAppointmentPreview('${serviceId}')">
+                </div>
+                <div class="form-group">
+                    <label for="proHourly-${serviceId}">Professional Hourly Rate ($):</label>
+                    <input type="number" id="proHourly-${serviceId}" name="proHourly" min="0" step="0.01" value="50" required>
+                </div>
+                <div class="form-group">
+                    <label for="hourlyRate-${serviceId}">Hourly Rate ($):</label>
+                    <input type="number" id="hourlyRate-${serviceId}" name="hourlyRate" min="0" step="0.01" value="135" required>
+                </div>
+                <div class="form-group">
+                    <label for="earlyArrival-${serviceId}">Early Arrival Bonus ($):</label>
+                    <input type="number" id="earlyArrival-${serviceId}" name="earlyArrival" min="0" step="0.01" value="25" required>
+                </div>
+                <div class="form-group retouching-group-${serviceId}" style="display: none;">
+                    <label for="retouchingCost-${serviceId}">Retouching Cost ($):</label>
+                    <input type="number" id="retouchingCost-${serviceId}" name="retouchingCost" min="0" step="0.01" value="40">
+                </div>
+                <div class="form-group">
+                    <label for="discountPercent-${serviceId}">Discount Percent (%):</label>
+                    <input type="number" id="discountPercent-${serviceId}" name="discountPercent" min="0" max="100" value="0">
+                </div>
+                <div class="form-group">
+                    <div class="appointment-preview">
+                        <span class="result-label">Estimated Total Appointments:</span>
+                        <span class="result-value" id="appointmentPreview-${serviceId}">24</span>
+                    </div>
+                </div>
+            `;
+
+            servicesContainer.appendChild(serviceCard);
+            
+            if (option === 'initial') {
+                serviceOptions.style.display = 'flex';
+            }
+
+            updateServiceDefaults(serviceId);
+        }
+
+        function removeService(serviceId) {
+            const serviceCard = document.getElementById(`service-${serviceId}`);
+            if (serviceCard) {
+                serviceCard.remove();
+                updateServiceNumbers();
+            }
+        }
+
+        function updateServiceNumbers() {
+            const serviceCards = servicesContainer.getElementsByClassName('service-card');
+            Array.from(serviceCards).forEach((card, index) => {
+                const header = card.querySelector('.service-card-header h3');
+                if (header) {
+                    header.textContent = `Service ${index + 1}`;
+                }
+            });
+        }
+
+        function updateServiceDefaults(serviceId) {
+            const serviceType = document.getElementById(`serviceType-${serviceId}`).value;
+            const totalHoursInput = document.getElementById(`totalHours-${serviceId}`);
+            const appTimeInput = document.getElementById(`appTime-${serviceId}`);
+            const proHourlyInput = document.getElementById(`proHourly-${serviceId}`);
+            const numProsInput = document.getElementById(`numPros-${serviceId}`);
+            const hourlyRateInput = document.getElementById(`hourlyRate-${serviceId}`);
+            const earlyArrivalInput = document.getElementById(`earlyArrival-${serviceId}`);
+            const retouchingCostInput = document.getElementById(`retouchingCost-${serviceId}`);
+            const retouchingGroup = document.querySelector(`.retouching-group-${serviceId}`);
+
+            // Show/hide retouching cost based on service type
+            retouchingGroup.style.display = serviceType === 'headshot' ? 'block' : 'none';
+
+            switch(serviceType) {
+                case 'massage':
+                case 'facial':
+                    totalHoursInput.value = '4';
+                    appTimeInput.value = '20';
+                    proHourlyInput.value = '50';
+                    numProsInput.value = '2';
+                    hourlyRateInput.value = '135';
+                    earlyArrivalInput.value = '25';
+                    retouchingCostInput.value = '0';
+                    break;
+                case 'hair':
+                case 'nails':
+                    totalHoursInput.value = '6';
+                    appTimeInput.value = '30';
+                    proHourlyInput.value = '50';
+                    numProsInput.value = '2';
+                    hourlyRateInput.value = '135';
+                    earlyArrivalInput.value = '25';
+                    retouchingCostInput.value = '0';
+                    break;
+                case 'headshot':
+                    totalHoursInput.value = '5';
+                    appTimeInput.value = '12';
+                    proHourlyInput.value = '400';
+                    numProsInput.value = '1';
+                    hourlyRateInput.value = '0';
+                    earlyArrivalInput.value = '0';
+                    retouchingCostInput.value = '40';
+                    break;
+            }
+            updateAppointmentPreview(serviceId);
+        }
+
+        function updateAppointmentPreview(serviceId) {
+            const totalHours = parseFloat(document.getElementById(`totalHours-${serviceId}`).value);
+            const appTime = parseFloat(document.getElementById(`appTime-${serviceId}`).value);
+            const numPros = parseInt(document.getElementById(`numPros-${serviceId}`).value);
+
+            const apptsPerHourPerPro = 60 / appTime;
+            const totalApptsPerHour = apptsPerHourPerPro * numPros;
+            const totalAppts = Math.floor(totalHours * totalApptsPerHour);
+
+            document.getElementById(`appointmentPreview-${serviceId}`).textContent = totalAppts;
+        }
+
+        function handleEventSubmit(event) {
+            event.preventDefault();
+            
+            try {
+                // Get basic form values
+                const eventData = {
+                    clientName: currentClient.name,
+                    date: document.getElementById('eventDate').value,
+                    services: []
+                };
+
+                // Get service data
+                const serviceCards = servicesContainer.getElementsByClassName('service-card');
+                Array.from(serviceCards).forEach(card => {
+                    const serviceId = card.id.split('-')[1];
+                    const serviceDateInput = document.getElementById(`serviceDate-${serviceId}`);
+                    
+                    const serviceData = {
+                        location: document.getElementById(`serviceLocation-${serviceId}`).value,
+                        serviceType: document.getElementById(`serviceType-${serviceId}`).value,
+                        totalHours: parseFloat(document.getElementById(`totalHours-${serviceId}`).value),
+                        appTime: parseFloat(document.getElementById(`appTime-${serviceId}`).value),
+                        numPros: parseInt(document.getElementById(`numPros-${serviceId}`).value),
+                        proHourly: parseFloat(document.getElementById(`proHourly-${serviceId}`).value),
+                        hourlyRate: parseFloat(document.getElementById(`hourlyRate-${serviceId}`).value),
+                        earlyArrival: parseFloat(document.getElementById(`earlyArrival-${serviceId}`).value),
+                        retouchingCost: parseFloat(document.getElementById(`retouchingCost-${serviceId}`)?.value || '0'),
+                        discountPercent: parseFloat(document.getElementById(`discountPercent-${serviceId}`).value),
+                        date: serviceDateInput ? serviceDateInput.value : eventData.date
+                    };
+                    eventData.services.push(serviceData);
+                });
+
+                // Get the location for this event
+                const location = eventData.services[0].location;
+                
+                // Update events for this location
+                if (!currentClient.events[location]) {
+                    currentClient.events[location] = [];
+                }
+                currentClient.events[location].push(eventData);
+
+                // Close modal
+                closeEventModal();
+
+                // Show results section
+                resultsSection.style.display = 'block';
+
+                // Update results
+                updateResults();
+                
+                // Update locations display
+                updateLocationsDisplay();
+            } catch (error) {
+                console.error('Error in form submission:', error);
+                alert('There was an error processing your request. Please try again.');
+            }
+        }
+
+        function calculateService(serviceData) {
+            try {
+                const { serviceType, totalHours, appTime, numPros, proHourly, hourlyRate, earlyArrival, discountPercent, retouchingCost } = serviceData;
+
+                // Calculate appointments
+                const apptsPerHourPerPro = 60 / appTime;
+                const totalApptsPerHour = apptsPerHourPerPro * numPros;
+                const totalAppts = Math.floor(totalHours * totalApptsPerHour);
+
+                // Calculate costs
+                let totalCostValue = 0;
+                let totalProRevValue = 0;
+
+                if (serviceType === 'headshot') {
+                    totalProRevValue = totalHours * numPros * proHourly;
+                    totalCostValue = totalProRevValue + (totalAppts * retouchingCost);
+                } else {
+                    const totalEarlyArrival = earlyArrival * numPros;
+                    totalProRevValue = (totalHours * numPros * proHourly) + totalEarlyArrival;
+                    totalCostValue = totalHours * hourlyRate * numPros;
+                }
+
+                // Apply discount
+                if (discountPercent > 0) {
+                    totalCostValue = totalCostValue * (1 - (discountPercent / 100));
+                }
+
+                return {
+                    totalAppointments: totalAppts,
+                    totalCost: totalCostValue,
+                    totalProRev: totalProRevValue
+                };
+            } catch (error) {
+                console.error('Error in service calculation:', error);
+                return {
+                    totalAppointments: 0,
+                    totalCost: 0,
+                    totalProRev: 0
+                };
+            }
+        }
+
+        function updateResults() {
+            try {
+                const resultsGrid = document.getElementById('resultsGrid');
+                
+                // Build event details card
+                let eventDetailsHtml = `
+                    <div class="event-details-card">
+                        <h3>Event Details</h3>
+                        <div class="result-item">
+                            <span class="result-label">Client Name:</span>
+                            <span class="result-value">${currentClient.name}</span>
+                        </div>
+                `;
+
+                // Get all dates across all locations
+                const allDates = new Set();
+                Object.values(currentClient.events).forEach(locationEvents => {
+                    locationEvents.forEach(event => {
+                        event.services.forEach(service => {
+                            allDates.add(service.date);
+                        });
+                    });
+                });
+                const sortedDates = Array.from(allDates).sort();
+                
+                eventDetailsHtml += `
+                    <div class="result-item">
+                        <span class="result-label">Event Dates:</span>
+                        <span class="result-value">${sortedDates.join(', ')}</span>
+                    </div>
+                `;
+
+                eventDetailsHtml += '</div>';
+
+                // Build location sections with date cards
+                let locationSectionsHtml = '';
+                let totalEventCost = 0;
+                let totalProRevenue = 0;
+                let totalAppointments = 0;
+
+                Object.entries(currentClient.events).forEach(([location, locationEvents]) => {
+                    // Group services by date for this location
+                    const dateGroups = {};
+                    let locationTotalCost = 0;
+                    let locationTotalAppointments = 0;
+
+                    locationEvents.forEach(event => {
+                        event.services.forEach(service => {
+                            const date = service.date;
+                            if (!dateGroups[date]) {
+                                dateGroups[date] = {
+                                    services: [],
+                                    totalCost: 0,
+                                    totalAppointments: 0
+                                };
+                            }
+                            dateGroups[date].services.push(service);
+                            
+                            const calculations = calculateService(service);
+                            dateGroups[date].totalCost += calculations.totalCost;
+                            dateGroups[date].totalAppointments += calculations.totalAppointments;
+                            locationTotalCost += calculations.totalCost;
+                            locationTotalAppointments += calculations.totalAppointments;
+                            totalEventCost += calculations.totalCost;
+                            totalProRevenue += calculations.totalProRev;
+                            totalAppointments += calculations.totalAppointments;
+                        });
+                    });
+
+                    locationSectionsHtml += `
+                        <div class="location-section">
+                            <div class="location-header">
+                                <h3 class="location-name">${location}</h3>
+                            </div>
+                    `;
+
+                    // Sort dates and create date cards
+                    Object.keys(dateGroups).sort().forEach((date, dateIndex) => {
+                        const dateData = dateGroups[date];
+                        locationSectionsHtml += `
+                            <div class="date-card">
+                                <div class="date-header">Day ${dateIndex + 1} - ${date}</div>
+                        `;
+
+                        // Add services for this date
+                        dateData.services.forEach((service, serviceIndex) => {
+                            const calculations = calculateService(service);
+                            locationSectionsHtml += `
+                                <div class="service-group client-perspective">
+                                    <div class="service-title">Service ${serviceIndex + 1}: ${service.serviceType}</div>
+                                    <div class="result-item">
+                                        <span class="result-label">Total Hours:</span>
+                                        <span class="result-value">${service.totalHours} hours</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">Number of Professionals:</span>
+                                        <span class="result-value">${service.numPros}</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">Total Appointments:</span>
+                                        <span class="result-value">${calculations.totalAppointments}</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">Service Cost:</span>
+                                        <span class="result-value">$${calculations.totalCost.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        // Add date totals
+                        locationSectionsHtml += `
+                                <div class="service-group shortcut-perspective">
+                                    <div class="service-title">Day ${dateIndex + 1} Totals</div>
+                                    <div class="result-item">
+                                        <span class="result-label">Total Appointments:</span>
+                                        <span class="result-value">${dateData.totalAppointments}</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <span class="result-label">Total Service Cost:</span>
+                                        <span class="result-value">$${dateData.totalCost.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // Add location totals
+                    locationSectionsHtml += `
+                        <div class="location-totals">
+                            <div class="service-title">${location} Totals</div>
+                            <div class="result-item">
+                                <span class="result-label">Total Appointments:</span>
+                                <span class="result-value">${locationTotalAppointments}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Total Service Cost:</span>
+                                <span class="result-value">$${locationTotalCost.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    locationSectionsHtml += '</div>';
+                });
+
+                // Build event summary card
+                const eventSummaryHtml = `
+                    <div class="summary-card event-summary">
+                        <div class="summary-header">Event Summary</div>
+                        <div class="result-item">
+                            <span class="result-label">Total Appointments:</span>
+                            <span class="result-value">${totalAppointments}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Total Event Cost:</span>
+                            <span class="result-value">$${totalEventCost.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+
+                // Build Shortcut financial details card
+                const shortcutNet = totalEventCost - totalProRevenue;
+                const shortcutMargin = (shortcutNet / totalEventCost) * 100;
+                
+                const shortcutDetailsHtml = `
+                    <div class="summary-card shortcut-summary">
+                        <div class="summary-header">Shortcut Financial Details</div>
+                        <div class="result-item">
+                            <span class="result-label">Gross Revenue:</span>
+                            <span class="result-value">$${totalEventCost.toFixed(2)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Professional Revenue:</span>
+                            <span class="result-value">$${totalProRevenue.toFixed(2)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Net Profit:</span>
+                            <span class="result-value">$${shortcutNet.toFixed(2)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Profit Margin:</span>
+                            <span class="result-value">${shortcutMargin.toFixed(1)}%</span>
+                        </div>
+                    </div>
+                `;
+
+                // Combine all sections
+                resultsGrid.innerHTML = eventDetailsHtml + locationSectionsHtml + eventSummaryHtml + shortcutDetailsHtml;
+            } catch (error) {
+                console.error('Error updating results:', error);
+                alert('There was an error displaying the results. Please try again.');
+            }
+        }
+
+        // Initialize with one service
+        addService();
+    </script>
+</body>
+</html> 
