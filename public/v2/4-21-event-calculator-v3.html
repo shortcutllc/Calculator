@@ -52,21 +52,38 @@
             border-radius: 16px;
             background: rgba(23, 80, 113, 0.02);
             width: 100%;
+            max-width: 400px;
         }
 
-        .logo-container svg {
-            max-width: 280px;
+        .logo {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .logo svg {
+            width: 100%;
             height: auto;
-            transition: transform 0.3s ease;
+            display: block;
         }
 
         .logo-container:hover svg {
             transform: scale(1.02);
+            transition: transform 0.3s ease;
         }
 
         .welcome-screen h2 {
             font-size: 2rem;
             margin-bottom: 32px;
+            color: #175071;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+            margin: 24px 0;
             color: #175071;
             text-align: center;
             font-weight: 600;
@@ -545,12 +562,9 @@
         <!-- Welcome Screen -->
         <div class="welcome-screen" id="welcomeScreen">
             <div class="logo-container">
-                <svg viewBox="0 0 280 60" xmlns="http://www.w3.org/2000/svg">
-                    <text x="140" y="40" font-family="Outfit" font-size="24" font-weight="600" fill="#175071" text-anchor="middle">Shortcut</text>
-                    <text x="140" y="60" font-family="Outfit" font-size="16" font-weight="400" fill="#666" text-anchor="middle">Event Calculator</text>
-                </svg>
+                <img src="../assets/logo-redandblue-new.svg" alt="Shortcut Logo" class="logo">
             </div>
-            <h2>Welcome to the Shortcut Event Calculator</h2>
+            <h2 class="welcome-title">Welcome to the Shortcut Event Calculator</h2>
             <div class="form-container">
                 <div class="client-input">
                     <label for="clientName">Client Name:</label>
@@ -1181,6 +1195,6 @@
 
     // Initialize with one service
     addService();
-</script>
+    </script>
 </body>
 </html>
