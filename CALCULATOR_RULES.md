@@ -3,6 +3,12 @@
 ## Core Principle
 All changes must maintain existing functionality while implementing new features or improvements. No feature regression is allowed.
 
+## Version Control
+- Original reference file: `public/v2/original-event-calculator-v3.html`
+- Dated working files: `public/v2/[date]-event-calculator-v3.html`
+- Always maintain the original file as a reference
+- Create new dated files for development work
+
 ## Testing Framework
 
 ### 1. Pre-Change Verification
