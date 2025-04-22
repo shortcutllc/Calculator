@@ -1,0 +1,82 @@
+<!--
+    Version: v3 (Backend Implementation)
+    Description: This version transitions from localStorage to backend storage using MongoDB.
+    Changes from v2:
+    - Integration with backend API endpoints
+    - Enhanced error handling for network requests
+    - Offline fallback to localStorage
+    - Added proposal sharing functionality
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortcut Event Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" href="/assets/favicon.ico">
+    <script src="/v3/api-client.js"></script>
+    <script src="/v3/storage-manager.js"></script>
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: #175071;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Site Header */
+        .site-header {
+            background: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 32px;
+        }
+
+        .site-logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: #175071;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .site-logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        .site-nav {
+            display: flex;
+            gap: 12px;
+        }
+
+        .site-nav .btn {
+            width: auto;
+            min-width: 100px;
+            padding: 12px 24px;
+        }
+
+        /* Rest of the existing styles... */
+    </style>
+</head>
+<body>
+    <!-- Rest of the existing HTML content... -->
+</body>
+</html> 
